@@ -30,6 +30,7 @@
 | `26-architecture-audit-findings.md` | A-Z docs ka technical cross-verification, real-world protocols, cloud limits aur fixes kya hain? | Sab — architecture review ke liye |
 | `27-account-signup-recovery.md` | Signup, forgot password, secondary recovery email, admin reset, seed restore ka A-Z flow kya hai? | Sab — account + recovery ke liye |
 | `28-admin-dashboard-moderation.md` | Admin/Superadmin roles, dashboard scope, account states, spam lifecycle, appeal kaise hoga? | Admin + reviewer — internal tool ke liye |
+| `29-mail-gaps-redis-provisioning.md` | Redis chahiye ya nahi, account provisioning atomic kaise hoga, address/quota rules kya hain? | Dev + infra — Phase 1 se pehle ye |
 
 ## Docs ke version rule
 
