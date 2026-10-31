@@ -6,9 +6,14 @@
 #
 # {$DOMAIN} aur {$ACME_EMAIL} .env se aate hain (compose me
 # environment se pass hote hain). Example: DOMAIN=dusrel.com ho
-# to auth-api auth.dusrel.com par aur mail-api
-# mail-api.dusrel.com par chalega (docs/10 ka service-domain rule,
-# final domain abhi bhi example hai — lock nahi hua hai).
+# to mail-api mail-api.dusrel.com par chalega (docs/10 ka
+# service-domain rule). auth-api wala route template rehta hai
+# (future VPS use ke liye, user choice 2026-10-31), lekin
+# current plan me auth-api ka public URL Orgo VM ke Cloudflare
+# Tunnel se aayega — isliye auth.dusrel.com ko public URL mat
+# samjho. Account centre (login/recovery pages)
+# account.dusrel.com hai, jo AUTH_APP_URL me lock hai
+# (mail-server/.env.example dekho).
 
 {
 	email {$ACME_EMAIL}
