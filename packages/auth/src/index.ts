@@ -108,6 +108,7 @@ function base64url(input: Buffer): string {
 }
 
 export interface AccessTokenClaims {
+  email: string;
   exp: number;
   iat: number;
   role: string;
@@ -159,6 +160,7 @@ export function verifyAccessToken(
       typeof claims.sub !== "string" ||
       typeof claims.sid !== "string" ||
       typeof claims.role !== "string" ||
+      typeof claims.email !== "string" ||
       typeof claims.exp !== "number" ||
       claims.exp <= nowSeconds
     ) {

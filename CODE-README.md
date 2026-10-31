@@ -24,6 +24,13 @@ hain — ye file unko replace nahi karti.
   codes, app passwords, admin invite/accept, admin user list/state,
   admin audit log, health check. Detail `services/auth-api/README.md`
   me hai.
+- `services/mail-api` — Hono app (Phase 1 basic slice, mail-api
+  slice me bana). Endpoints: mailboxes, messages list/get/send/
+  patch/delete (Trash + purge), aliases create/list/delete, key
+  directory publish/get (basic). Mailbox data JMAP interface ke
+  through aata hai — v1 me sirf in-memory fake hai, asli Stalwart
+  JMAP client VPS step me banega. Detail
+  `services/mail-api/README.md` me hai.
 
 ## Kaise chalaye
 
@@ -83,3 +90,14 @@ npx -y pnpm@10.19.0 --filter @dusrel/auth-api test
    is repo me nahi hai — root scripts `pnpm -r` se chalte hain.
    Turborepo wiring agle tooling step me hogi, jab laptop par
    native pnpm hoga.
+8. **mail-api auth sirf signature + expiry check karta hai.**
+   Session revoke / suspend ka check isme nahi hai (auth-api ke
+   sessions mail-api dekh nahi sakta) — revoked token ki window
+   15-minute access TTL tak hai. Fix shared Postgres ya token
+   introspection se aayega, dono baad ke steps hain.
+9. **mail-api ke v1 debts:** reserved-names list auth-api se copy
+   hai (dono identical rehni chahiye); alias uniqueness sirf alias
+   store ke andar check hoti hai, primary addresses ke against
+   nahi; key fingerprint abhi string-only hai (real PGP verify
+   Phase 3 me); fake me har email sirf ek mailbox me hota hai
+   (real JMAP me kayi me ho sakta hai).

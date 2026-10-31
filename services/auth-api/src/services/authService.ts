@@ -134,9 +134,12 @@ function issueTokens(
     userAgent,
     userId: user.id,
   });
+  // email claim: mail-api (and future services) need the user's
+  // primary address for ownership checks (alias domain, key publish)
+  // without calling auth-api. Added in the mail-api slice, 2026-10-31.
   const accessToken = signAccessToken(
     config.jwtSecret,
-    { role: user.role, sid: session.id, sub: user.id },
+    { email: user.email, role: user.role, sid: session.id, sub: user.id },
     config.accessTokenTtlSeconds,
   );
   return { accessToken, refreshToken };

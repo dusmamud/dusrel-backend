@@ -1,1 +1,11 @@
-{"name":"dusrel-backend","packageManager":"pnpm@10.19.0","private":true,"scripts":{"build":"pnpm -r build","test":"pnpm --filter @dusrel/auth-api test","typecheck":"pnpm -r build"},"version":"0.1.0"}
+{
+  "name": "dusrel-backend",
+  "packageManager": "pnpm@10.19.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm --filter @dusrel/auth-api test && pnpm --filter @dusrel/mail-api test",
+    "typecheck": "pnpm -r build"
+  },
+  "version": "0.1.0"
+}

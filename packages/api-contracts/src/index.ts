@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export * from "./mail.js";
+
 /**
  * Shared Zod schemas for auth-api. Rule from docs/10 + api-contracts
  * scope doc: bina schema ke koi endpoint nahi banega. Services parse

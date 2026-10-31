@@ -1,10 +1,11 @@
 import { verifyAccessToken } from "@dusrel/auth";
+import type { AccessTokenClaims } from "@dusrel/auth";
 import type { Context, Next } from "hono";
 import type { AuthConfig } from "../config.js";
 import type { InMemoryStore, Session, User } from "../store.js";
 
 export interface AuthContext {
-  claims: { role: string; sid: string; sub: string };
+  claims: AccessTokenClaims;
   session: Session;
   user: User;
 }
