@@ -76,7 +76,17 @@ export type CreateAliasInput = z.infer<typeof createAliasSchema>;
 
 export const publishKeySchema = z.object({
   address: emailSchema,
-  fingerprint: z.string().regex(/^[a-fA-F0-9]{40}$/, "Fingerprint must be 40 hex chars"),
+  // Fingerprint: v4 SHA-1 = 40 hex, v6 SHA-256 = 64 hex (RFC 4880 /
+  // RFC 9580). Coordinator integration fix: crypto package openpgp
+  // 6.x se v6 keys (64 hex) banata hai, isliye sirf 40 hex mangne
+  // par uski keys 400 fail hoti thi. Dono lengths allowed hain;
+  // koi aur length abhi bhi reject hoti hai (truncation nahi hai).
+  fingerprint: z
+    .string()
+    .regex(
+      /^([a-fA-F0-9]{40}|[a-fA-F0-9]{64})$/,
+      "Fingerprint must be 40 hex chars (v4) or 64 hex chars (v6)",
+    ),
   publicKeyArmored: z
     .string()
     .startsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----")

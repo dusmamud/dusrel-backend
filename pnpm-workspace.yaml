@@ -7,3 +7,6 @@ packages:
 # other packages use prebuilt binaries or pure JS.
 allowBuilds:
   argon2: true
+
+minimumReleaseAgeExclude:
+  - eslint@10.14.0

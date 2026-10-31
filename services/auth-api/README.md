@@ -45,6 +45,21 @@ AUTH_JWT_SECRET=dev-only-change-me node dist/src/index.js
 npx -y pnpm@12.16.1 --filter @dusrel/auth-api test
 ```
 
+## return_to validation (31 Oct 2026, parallel batch)
+
+Login response me `redirectTo` field aata hai. Login body me
+optional `returnTo` bhejo — server (auth-api) usko docs/28 ke
+locked rules se validate karta hai: scheme sirf https, host exact
+allowlist se match (suffix trick nahi chalega), path single `/`
+se shuru, decode karke dobara validate. Invalid ya missing
+`return_to` par error nahi, fallback `https://account.dusrel.com/`
+milta hai. Allowlist env `AUTH_RETURN_TO_HOSTS` se override ho
+sakti hai (comma-separated); default docs/28 wali list hai.
+`return_to` CSRF/state ki jagah nahi hai — OIDC flow me alag
+`state` chahiye hoga. Over-long input (>2048 chars) schema par
+400 deta hai (DoS guard) — ye coordinator ka documented faisla
+hai, redirect fallback se alag hai.
+
 ## Imaandaar limits (v1)
 
 1. **Store in-memory hai** — restart par sab khatam. Postgres repo

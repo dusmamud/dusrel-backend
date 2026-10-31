@@ -51,3 +51,9 @@ jobs:
 
       - name: Test mail-api
         run: pnpm --filter @dusrel/mail-api test
+
+      - name: Test address
+        run: pnpm --filter @dusrel/address test
+
+      - name: Test crypto
+        run: pnpm --filter @dusrel/crypto test

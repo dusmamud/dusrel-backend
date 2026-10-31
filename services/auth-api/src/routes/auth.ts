@@ -13,6 +13,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { authMiddleware, getAuth } from "../middleware/auth.js";
 import { RateLimiter } from "../rateLimit.js";
+import { resolveReturnTo } from "../returnTo.js";
 import { ApiError, AuthService } from "../services/authService.js";
 import type { InMemoryStore } from "../store.js";
 import type { AuthConfig } from "../config.js";
@@ -64,7 +65,11 @@ export function createAuthRoutes(
       userAgent: c.req.header("user-agent") ?? null,
     });
     // Flat shape for clients: accessToken + refreshToken + user.
-    return c.json({ ...result.tokens, user: result.user });
+    // redirectTo: docs/28 ke hisab se validate kiya gaya return_to
+    // hai — invalid/missing par fallback milta hai, kabhi error
+    // nahi, aur baaki fields bilkul same rehte hain. Ye CSRF/state
+    // ki jagah nahi hai, sirf destination hai.
+    return c.json({ ...result.tokens, redirectTo: resolveReturnTo(body.returnTo), user: result.user });
   });
 
   app.post("/auth/refresh", async (c) => {

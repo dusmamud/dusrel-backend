@@ -1,0 +1,1 @@
+{"dependencies":{},"devDependencies":{"@types/node":"^24.19.0","typescript":"^7.0.0"},"exports":{".":"./dist/src/index.js"},"main":"dist/src/index.js","name":"@dusrel/address","scripts":{"build":"tsc -p tsconfig.json","test":"tsc -p tsconfig.json && node --test dist/test/*.test.js"},"types":"dist/src/index.d.ts","version":"0.1.0"}

@@ -20,6 +20,12 @@ export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1).max(128),
   backupCode: z.string().min(1).max(32).optional(),
+  // return_to: account centre login ke baad kis URL par wapas jana
+  // hai. Sirf string + max length yahan check hoti hai (starting
+  // value 2048, lock nahi) — asli host/scheme/path validation
+  // server-side auth-api ke returnTo.ts me hoti hai (docs/28).
+  // Invalid return_to par login fail NAHI hota, fallback milta hai.
+  returnTo: z.string().max(2048).optional(),
   totpCode: totpCodeSchema.optional(),
 });
 export type LoginInput = z.infer<typeof loginSchema>;

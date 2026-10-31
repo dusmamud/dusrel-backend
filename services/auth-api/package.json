@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@dusrel/address": "workspace:*",
     "@dusrel/api-contracts": "workspace:*",
     "@dusrel/auth": "workspace:*",
     "@hono/node-server": "^2.1.0",

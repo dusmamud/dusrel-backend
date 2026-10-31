@@ -126,7 +126,27 @@ npx -y pnpm@12.16.1 --filter @dusrel/auth-api test
     VPS par first run me verify karne hain. Fail2ban, CPU/RAM
     tool, alert channel ka final naam, aur automated queue
     alert abhi bhi OPEN hain (runbook me likha hai).
-12. **mail-api gaps slice (v1, 31 Oct 2026):**
+12. **Parallel backend batch (31 Oct 2026, 5 workers + coordinator
+    integration):** return_to validation (auth-api, docs/28 rules
+    exactly, 13 naye tests), shared @dusrel/address package
+    (auth-api + mail-api dono migrate, drift khatam), @dusrel/crypto
+    package (BIP39, Argon2id raw, AES-GCM, OpenPGP v6), tooling
+    (turbo.json, ESLint flat config, Prettier — existing build/test
+    scripts untouched), deploy workflow (GHCR build hamesha +
+    Render/VPS steps sirf jab secrets set hon). **Coordinator ke
+    faisle (workers ne khud nahi badle):** (a) fingerprint schema
+    40-or-64 hex tak badhaya gaya (v6 keys 64 hex hoti hain, warna
+    crypto keys publish nahi hoti); (b) VPS deploy step me
+    `up -d --build` lagaya (bina iske compose `build:` wali API
+    purani rehti); (c) address/crypto package ka tsconfig
+    `src+test` + test scripts jode (warna tests compile hi nahi
+    hote); (d) CI me address/crypto test steps jode; (e) return_to
+    over-long input par 400 rakha gaya hai (DoS guard, fallback
+    se alag). **OPEN (integration ke baad bhi):** typescript-eslint
+    ka peer range TS 7 ko cover nahi karta — eslint run par check
+    karna hai; asli Render/VPS deploy secrets ke bina verify nahi
+    hua hai.
+13. **mail-api gaps slice (v1, 31 Oct 2026):**
     `GET /mail/quota` (5 GB starting proposal, usage JMAP se),
     settings GET/PUT (signature auto-append nahi hota),
     alias-send ownership check (403 warna), search polish

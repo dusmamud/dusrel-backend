@@ -1,0 +1,138 @@
+name: Deploy (backend)
+
+# Backend deploy: Docker -> GHCR -> Render hook ya VPS pull.
+#
+# Trigger:
+# - Manual: workflow_dispatch (kabhi bhi haath se chalao).
+# - Push to main, SIRF jab ye paths badlen: services/auth-api/**,
+#   services/mail-api/**, packages/**, ya dono Dockerfiles.
+#   (Docs-only push par deploy nahi chalega — ye jaan-boojh kar
+#   hai, taaki har docs commit par images rebuild na hon.)
+#
+# Jobs (ek doosre se independent hain — koi job doosri ka wait
+# nahi karta, sirf apni condition dekhta hai):
+# - Job 1 (build-images): HAMESHA chalta hai. Dono API images
+#   GHCR par push karta hai. Isse Dockerfiles pehli baar CI par
+#   verify bhi ho jayenge (ab tak wo sirf local files the).
+# - Job 2 (deploy-render): SIRF jab Render hook secrets set hon.
+#   Har hook apne step ki condition se chalta hai — ek hook set
+#   ho aur doosra na ho to sirf set wala chalega.
+# - Job 3 (deploy-vps): SIRF jab chaaron VPS secrets set hon.
+#   VPS par git pull + compose pull + up -d karta hai.
+#
+# Secrets: koi bhi secret, hook URL, IP ya hostname is file me
+# HARDCODE NAHI hai — sab GitHub Secrets se aata hai (poori list
+# .github/workflows/README.md ke deploy section me hai).
+# GHCR login ke liye koi extra secret nahi chahiye: built-in
+# GITHUB_TOKEN + permissions packages: write kaafi hai.
+#
+# VPS deploy (coordinator integration fix): VPS compose file me
+# APIs `build:` se banti hain, `image:` se nahi. Isliye sirf
+# `pull` + `up -d` karne par API ka naya code live NAHI hota —
+# base images (Stalwart/Caddy) update hote, API purani rehti.
+# Isliye Job 3 `up -d --build` chalata hai: git pull se naya code
+# aata hai, pull se base images update hote hain, --build se API
+# images dobara banti hain. GHCR images par switch karna (compose
+# me `image:` tags) ek alag decision hai, is batch me nahi hai.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/auth-api/**"
+      - "services/mail-api/**"
+      - "packages/**"
+      - "services/auth-api/Dockerfile"
+      - "services/mail-api/Dockerfile"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-images:
+    name: Build + push GHCR images
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build + push auth-api image
+        uses: docker/build-push-action@v6
+        with:
+          # Build context REPO ROOT hai — Dockerfiles workspace
+          # root files (package.json, pnpm-lock, packages/*) copy
+          # karte hain. Context ko service folder rakhne par ye
+          # COPY fail hogi.
+          context: .
+          file: services/auth-api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/dusmamud/dusrel-auth-api:latest
+            ghcr.io/dusmamud/dusrel-auth-api:${{ github.sha }}
+
+      - name: Build + push mail-api image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: services/mail-api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/dusmamud/dusrel-mail-api:latest
+            ghcr.io/dusmamud/dusrel-mail-api:${{ github.sha }}
+
+  deploy-render:
+    name: Deploy to Render (hooks)
+    runs-on: ubuntu-24.04
+    # Koi bhi Render hook set nahi hai to poora job skip hoga.
+    if: ${{ secrets.RENDER_AUTH_DEPLOY_HOOK != '' || secrets.RENDER_MAIL_DEPLOY_HOOK != '' }}
+    steps:
+      - name: Trigger auth-api deploy hook
+        if: ${{ secrets.RENDER_AUTH_DEPLOY_HOOK != '' }}
+        run: curl -fsS -X POST "$RENDER_AUTH_DEPLOY_HOOK"
+        env:
+          RENDER_AUTH_DEPLOY_HOOK: ${{ secrets.RENDER_AUTH_DEPLOY_HOOK }}
+
+      - name: Trigger mail-api deploy hook
+        if: ${{ secrets.RENDER_MAIL_DEPLOY_HOOK != '' }}
+        run: curl -fsS -X POST "$RENDER_MAIL_DEPLOY_HOOK"
+        env:
+          RENDER_MAIL_DEPLOY_HOOK: ${{ secrets.RENDER_MAIL_DEPLOY_HOOK }}
+
+  deploy-vps:
+    name: Deploy to VPS (SSH pull)
+    runs-on: ubuntu-24.04
+    # Chaaron VPS secrets me se koi ek bhi missing ho to poora
+    # job skip hoga — aadha VPS deploy (bina key ya bina dir ke
+    # SSH) kabhi try nahi hoga.
+    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' && secrets.VPS_COMPOSE_DIR != '' }}
+    steps:
+      - name: Pull + restart on VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          # COMPOSE_DIR step ke env se remote script ko milta hai
+          # (envs), taaki secret seedha script text me na likhna
+          # pade. GitHub logs me secrets mask hote hain.
+          envs: COMPOSE_DIR
+          script: |
+            set -e
+            cd "$COMPOSE_DIR"
+            git pull --ff-only origin main
+            docker compose pull
+            docker compose up -d --build
+            docker compose ps
+        env:
+          COMPOSE_DIR: ${{ secrets.VPS_COMPOSE_DIR }}

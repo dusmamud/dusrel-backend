@@ -1,3 +1,4 @@
+import { AddressError, validateAliasAddress } from "@dusrel/address";
 import type { JmapClient } from "../jmap.js";
 import type { Alias, MailStore, PublicKeyEntry } from "../store.js";
 
@@ -13,78 +14,18 @@ export class ApiError extends Error {
 }
 
 /**
- * Reserved local-parts, duplicated from auth-api v1 (see note below).
- * Duplication debt, stated plainly: auth-api and mail-api are
- * separate services and must not import each other, so v1 copies
- * this list. The lists MUST stay identical until the shared address
- * package lands (planned with the Postgres wiring step). If they
- * drift, an address could be creatable as an alias but not as a
- * primary address, or vice versa.
+ * Address rules ab @dusrel/address package se aate hain — yahan
+ * koi local copy nahi hai. Note, saaf-saaf: auth-api ki apni copy
+ * abhi bhi rehti hai (uska migration coordinator karega), isliye
+ * mail-api aur auth-api ke beech drift ka risk tab tak hai jab
+ * tak auth-api bhi is package par nahi aa jata.
  */
-export const RESERVED_LOCAL_PARTS = new Set([
-  "abuse",
-  "account",
-  "admin",
-  "help",
-  "hostmaster",
-  "info",
-  "mail",
-  "no-reply",
-  "noreply",
-  "postmaster",
-  "security",
-  "support",
-  "webmaster",
-]);
 
 /** Alias limit per user — starting proposal from docs/29, not a lock. */
 export const ALIAS_LIMIT_PER_USER = 10;
 
 /** Quota per user — 5 GB (decimal), docs/29 starting proposal, not a lock. */
 export const QUOTA_BYTES_PER_USER = 5_000_000_000;
-
-function validateAliasAddress(address: string, primaryEmail: string): string {
-  const lower = address.toLowerCase();
-  const parts = lower.split("@");
-  if (parts.length !== 2) {
-    throw new ApiError(400, "invalid_email", "Alias must be a single address");
-  }
-  const [local, domain] = parts;
-  const primaryDomain = primaryEmail.split("@")[1]?.toLowerCase();
-  if (!primaryDomain || domain !== primaryDomain) {
-    // Phase 1 is single-domain (docs/29 Section 6): an alias lives
-    // on the user's own domain, never on someone else's domain.
-    throw new ApiError(
-      400,
-      "invalid_domain",
-      "Alias must be on your own domain",
-    );
-  }
-  if (local.length < 3 || local.length > 64) {
-    throw new ApiError(400, "invalid_email", "Local part must be 3-64 characters");
-  }
-  if (!/^[a-z0-9._-]+$/.test(local)) {
-    throw new ApiError(
-      400,
-      "invalid_email",
-      "Local part may contain only a-z, 0-9, dot, underscore, hyphen",
-    );
-  }
-  if (local.startsWith(".") || local.endsWith(".") || local.includes("..")) {
-    throw new ApiError(
-      400,
-      "invalid_email",
-      "Local part must not start/end with a dot or contain consecutive dots",
-    );
-  }
-  if (RESERVED_LOCAL_PARTS.has(local)) {
-    throw new ApiError(400, "reserved_email", "This address is reserved");
-  }
-  if (lower === primaryEmail.toLowerCase()) {
-    throw new ApiError(400, "invalid_email", "Alias cannot equal your primary address");
-  }
-  return lower;
-}
 
 export class MailService {
   constructor(
@@ -241,7 +182,18 @@ export class MailService {
   }
 
   createAlias(userId: string, primaryEmail: string, address: string): Alias {
-    const lower = validateAliasAddress(address, primaryEmail);
+    // Shared package ki error ko service ki error me badlo — same
+    // code, same message, same 400 — taaki API contract aur
+    // existing tests bilkul same rahen.
+    let lower: string;
+    try {
+      lower = validateAliasAddress(address, primaryEmail);
+    } catch (e) {
+      if (e instanceof AddressError) {
+        throw new ApiError(400, e.code, e.message);
+      }
+      throw e;
+    }
     // v1 scope limit, stated plainly: uniqueness is checked only
     // against other aliases in this store, not against primary
     // addresses (mail-api cannot see auth-api's users yet). The

@@ -252,6 +252,30 @@ describe("mail-api", () => {
     assert.equal(badFingerprint.status, 400);
   });
 
+  it("key directory: v6 (64-hex) fingerprint also publishes (coordinator fix)", async () => {
+    const ctx = makeApp();
+    const token = tokenFor(USER_A);
+    const armored = "-----BEGIN PGP PUBLIC KEY BLOCK-----\ntest\n-----END PGP PUBLIC KEY BLOCK-----";
+    const published = await req(ctx.app, "POST", "/mail/keys", {
+      body: {
+        address: USER_A.email,
+        fingerprint: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        publicKeyArmored: armored,
+      },
+      token,
+    });
+    assert.equal(published.status, 201);
+    const wrongLength = await req(ctx.app, "POST", "/mail/keys", {
+      body: {
+        address: USER_A.email,
+        fingerprint: "0123456789abcdef0123",
+        publicKeyArmored: armored,
+      },
+      token,
+    });
+    assert.equal(wrongLength.status, 400);
+  });
+
   it("quota: defaults, then counts + usage after send and delivery", async () => {
     const ctx = makeApp();
     const token = tokenFor(USER_A);

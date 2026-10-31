@@ -30,22 +30,16 @@ const INVALID_CREDENTIALS = "Invalid email or password";
 const FORGOT_MESSAGE =
   "If an account exists for this email, a reset link has been sent to its verified secondary email.";
 
-/** Reserved local-parts (docs/27 + 28). Never assigned, admin or signup. */
-export const RESERVED_LOCAL_PARTS = new Set([
-  "abuse",
-  "account",
-  "admin",
-  "help",
-  "hostmaster",
-  "info",
-  "mail",
-  "no-reply",
-  "noreply",
-  "postmaster",
-  "security",
-  "support",
-  "webmaster",
-]);
+/**
+ * Reserved local-parts — ab shared @dusrel/address package se aate
+ * hain (coordinator integration: mail-api pehle migrate hua tha,
+ * auth-api ab hua hai — ab dono ka ek hi sach hai, drift khatam).
+ * Re-export isliye hai taaki purana import path na toote.
+ */
+import { RESERVED_LOCAL_PARTS } from "@dusrel/address";
+
+// Re-export taaki purana import path na toote.
+export { RESERVED_LOCAL_PARTS };
 
 export interface PublicUser {
   createdAt: string;
