@@ -114,3 +114,15 @@ npx -y pnpm@12.16.1 --filter @dusrel/auth-api test
     WebUI se set hongi (mail-server README me first-run
     checklist hai). VPS run + DNS + mail-tester proof abhi bhi
     tumhare VPS par baaki hai.
+11. **Backup + monitoring slice (v1, 31 Oct 2026):**
+    compose me Uptime Kuma service (image 2.5.8 pinned,
+    dashboard sirf 127.0.0.1:3001 par),
+    `scripts/backup.sh` (data pehle, R2 baad me, Stalwart stop
+    karke tar, trap se wapas start, retention 7 din),
+    `scripts/disk-alert.sh` (80% threshold, external webhook),
+    aur `MONITORING-BACKUP.md` runbook. **Verify sirf YAML
+    syntax + `bash -n` tak hua hai** — Docker yahan nahi hai,
+    isliye compose run, backup run, aur Uptime Kuma monitors
+    VPS par first run me verify karne hain. Fail2ban, CPU/RAM
+    tool, alert channel ka final naam, aur automated queue
+    alert abhi bhi OPEN hain (runbook me likha hai).

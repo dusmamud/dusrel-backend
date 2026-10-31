@@ -79,6 +79,20 @@ wahi sach hai.
     inbound mailboxes (docs/23 P0-12) — bina inke complaint
     handling ka landing point hi nahi hai.
 
+## Monitoring + Backup (v1 slice, 31 Oct 2026)
+
+- `docker-compose.yml` me **Uptime Kuma** service hai
+  (`louislam/uptime-kuma:2.5.8` pinned, dashboard sirf
+  `127.0.0.1:3001` par). Monitors WebUI se banenge —
+  poori list `MONITORING-BACKUP.md` me hai.
+- `scripts/backup.sh` — data store pehle, R2 blob baad me,
+  beech me koi purge nahi; Stalwart stop karke volume tar
+  banata hai (chal rahe store ki copy backup nahi hoti).
+- `scripts/disk-alert.sh` — disk 80% paar ho to external
+  webhook par alert (mail service ke bahar ka channel chahiye).
+- Restore drill har 3 mahine me isolated system par
+  (`MONITORING-BACKUP.md` dekho).
+
 ## Kya abhi bhi baaki hai (is slice me nahi hai)
 
 - Stalwart ka asli VPS run + DNS + mail-tester proof (tumhare VPS

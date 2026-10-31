@@ -1,5 +1,13 @@
 # Dusrel Mail VPS stack — Docker Compose (v1 slice)
 #
+# Project name fixed hai (`dusrel-mail`) taaki volume ke naam
+# (jaise dusrel-mail_stalwart-data) har jagah — backup script
+# samet — deterministic rahen, chahe compose kisi bhi folder se
+# chalao. Bina iske project name directory se banta aur volume
+# ka naam badal jata.
+
+name: dusrel-mail
+#
 # Ye file VPS par chalegi, yahan sandbox me nahi (yahan Docker hi
 # nahi hai). Stalwart + Caddy + Hono APIs ek hi compose me hain,
 # taaki VPS badalne par (3-4 din wala plan, docs/09) wahi file +
@@ -109,12 +117,35 @@ services:
     expose:
       - "3002"
 
+  # Monitoring (v1 slice, 31 Oct 2026): Uptime Kuma — uptime +
+  # HTTP health + TCP port checks. Dashboard SIRF 127.0.0.1 par
+  # hai (webadmin wali hi rule: public internet par nahi).
+  # Host port 3001 auth-api ke internal 3001 se nahi takrata —
+  # auth-api ka 3001 sirf compose network ke andar expose hai,
+  # host par publish nahi hua hai.
+  # Image pinned: louislam/uptime-kuma:2.5.8 (31 Oct 2026 ko
+  # verify kiya gaya latest 2.x tag).
+  uptime-kuma:
+    image: louislam/uptime-kuma:2.5.8
+    container_name: dusrel-uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - uptime-kuma-data:/app/data
+    ports:
+      - "127.0.0.1:3001:3001"
+    # Monitors WebUI se banenge (MONITORING-BACKUP.md dekho) —
+    # Uptime Kuma ki config file nahi hoti, isliye yahan koi
+    # monitor list hardcode nahi hai.
+
 volumes:
-  # Backup order (docs/23 P0-9, docs/29): data store PEHLE, blob
-  # store (R2) BAAD me, beech me koi purge nahi. Is volume ka
-  # backup Stalwart ke internal DataStore (RocksDB) ka backup hai;
-  # R2 blobs ka backup R2 ki taraf se hai. Restore drill har
-  # 3 mahine me isolated system par (docs/29 ka proposal).
+  # Backup order (docs/23 P0-9, docs/29, Stalwart backup docs):
+  # data store PEHLE, blob store (R2) BAAD me, beech me koi purge
+  # nahi. Chal rahe data store ki files copy karna backup NAHI
+  # hai (Stalwart docs ka rule) — isliye backup.sh pehle
+  # Stalwart ko stop karta hai, tab volume ka tar banata hai.
+  # Backup window 04:00 wale daily blob purge se kabhi overlap
+  # nahi hona chahiye (scripts/backup.sh dekho).
   stalwart-data:
   caddy-data:
   caddy-config:
+  uptime-kuma-data:
