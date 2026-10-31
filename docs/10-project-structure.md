@@ -31,6 +31,19 @@ dusrel-backend/
 Poore suite (frontend ke saath) ka structure `README.md` me hai.
 Is backend folder me frontend code kabhi nahi aayega.
 
+Client docs ke liye alag hissa hai, code ke liye nahi:
+
+```
+clients/
+  android-native/README.md   # Kotlin + Compose spec ka link, code alag repo me
+  ios-swift/README.md        # Swift + SwiftUI spec ka link, code alag repo me
+  desktop-tauri/README.md    # Tauri v2 spec ka link, code alag repo me
+```
+
+Client code is backend repo me kabhi nahi aayega — Gradle, Xcode
+aur Tauri build backend repo ko bhari bana denge. Docs yahan
+central rahenge taaki API/auth/crypto ka sach ek jagah rahe.
+
 ## Naming rules
 
 - Folder: kebab-case — `mail-api`, `drive-api`, `api-contracts`

@@ -61,3 +61,17 @@ aur security doc banega, phir code:
 
 Koi future product Phase 1 ke P0 ko slow nahi karega. Agar Drive ka
 kaam Mail ke P0 se takrayega to Mail pehle poora hoga.
+
+## Phase 5 — Clients: Android, iOS, Desktop (future, docs ready hain)
+
+Docs abhi se ban gaye hain (`docs/15` se `docs/19` tak), code baad me:
+
+- Android native pehle (Kotlin + Compose, offline-first, Keystore)
+- iOS Swift uske baad (Swift + SwiftUI, SwiftData, Keychain +
+  Secure Enclave), jab API stable ho jaye
+- Desktop Tauri uske baad / parallel (Windows pehle, phir macOS,
+  phir Linux), web frontend reuse ke saath
+
+Client code is backend repo me nahi aayega — har platform ka alag
+repo banega. Client shuru karne se pehle us platform ka alag PRD
+aur security review hoga, sirf ye docs kaafi nahi honge.

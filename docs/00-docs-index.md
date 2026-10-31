@@ -16,6 +16,11 @@
 | `12-decisions-adr.md` | Har bada decision kyu liya, rejected option kya tha? | Reviewer, future dev |
 | `13-testing-qa.md` | Launch se pehle kaun se test pass hone hi chahiye? | QA + dev |
 | `14-operations-runbook.md` | Backup, monitoring, outage me kya karna hai? | Ops |
+| `15-client-overview.md` | Web ke baad Android, iOS, Desktop ka shared plan kya hai? | Sab — client plan ke liye |
+| `16-android-native.md` | Android native app ka stack, offline-first, security kya hoga? | Android dev |
+| `17-ios-swift.md` | iOS Swift app ka stack, SwiftData, Keychain kya hoga? | iOS dev |
+| `18-desktop.md` | Desktop app Tauri se kyu, Electron kab, security kya hogi? | Desktop dev |
+| `19-client-security-sync.md` | Teenon client par ek hi security + sync rulebook kya hai? | Sab client dev |
 
 ## Docs ke version rule
 

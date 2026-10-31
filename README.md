@@ -34,6 +34,9 @@ design system aur ek hi crypto layer share kare.
 | Chat | Future | `services/chat-api/` | WebSocket, persistent service |
 | Meet | Future | `services/meet-api/` | LiveKit SFU, VPS-only media |
 | Auth (shared) | Phase 1 — sab apps ke liye | `services/auth-api/` | Single SSO, ek login sab apps ke liye |
+| Android native (future) | Docs only, code alag repo me hoga | `clients/android-native/` | Kotlin + Compose, Room, Keystore — `docs/16-android-native.md` |
+| iOS Swift (future) | Docs only, code alag repo me hoga | `clients/ios-swift/` | Swift + SwiftUI, SwiftData, Keychain — `docs/17-ios-swift.md` |
+| Desktop Tauri (future) | Docs only, code alag repo me hoga | `clients/desktop-tauri/` | Tauri v2, Windows pehle — `docs/18-desktop.md` |
 
 ## Stack — docs ke liye istemal hua stack (2026-10-31 ko discuss hua)
 
@@ -88,6 +91,15 @@ dusrel-backend/
     12-decisions-adr.md
     13-testing-qa.md
     14-operations-runbook.md
+    15-client-overview.md
+    16-android-native.md
+    17-ios-swift.md
+    18-desktop.md
+    19-client-security-sync.md
+  clients/
+    android-native/README.md   # docs only, code alag repo me hoga
+    ios-swift/README.md        # docs only, code alag repo me hoga
+    desktop-tauri/README.md    # docs only, code alag repo me hoga
   services/
     auth-api/README.md       # SSO service — scope doc, code nahi
     mail-api/README.md       # HTTP API, Stalwart se bridge

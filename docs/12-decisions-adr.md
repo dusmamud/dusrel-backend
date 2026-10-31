@@ -78,6 +78,38 @@ likha jayega. Bina ADR ke bada decision code me nahi jayega.
 - Rejected: Jitsi (taiyaar UI hai, lekin Dusrel ka custom branded
   Meet banane ke liye control kam hai), khud SFU banana.
 
+## ADR-010 — Clients: native alag, docs central
+
+- Decision: Android native (Kotlin), iOS Swift (SwiftUI) aur Desktop
+  (Tauri) ke code repo alag honge, lekin unki planning docs isi
+  backend repo me rahenge (`docs/15-19`, `clients/*` scope READMEs).
+- Reason: Backend API, auth aur crypto ka sach ek jagah rahe, lekin
+  native code ka build system (Gradle / Xcode / Tauri) backend repo
+  ko bhari na banaye.
+- Rejected: Sab code ek hi repo me dalna (build complexity badhti),
+  aur client docs ko alag alag jagah rakhna (API drift hota).
+
+## ADR-011 — Desktop Tauri v2, Electron fallback
+
+- Decision: Desktop ka default Tauri v2 hai — chhota installer
+  (aksar 3-15 MB vs Electron 50-150 MB), kam memory, scoped
+  capabilities security ke liye.
+- Rejected (default): Electron — mature hai, lekin bada bundle aur
+  zyada security checklist ka bojh hai. Sirf tab jab Tauri WebView
+  koi zaroori feature block kare, tab alag ADR ke saath Electron
+  par jana hoga.
+
+## ADR-012 — Client security: platform keystore hi sach hai
+
+- Decision: Android Keystore (StrongBox jahan mile), iOS Keychain +
+  Secure Enclave, Desktop OS Keychain — teeno par secret kabhi
+  plain file / SharedPreferences / UserDefaults me nahi.
+- Reason: OWASP Mobile guidance — client par bharosa mat karo,
+  password device par store mat karo, sensitive data platform key
+  se lock karke rakho.
+- Rejected: Apna custom secure storage banana, ya seed/key ko
+  plain local file me rakhna.
+
 ## ADR-009 — Public signup Phase 4 tak nahi
 
 - Decision: Phase 1-3 me public signup nahi hoga.
