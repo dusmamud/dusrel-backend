@@ -8,3 +8,11 @@ Nahi karega: tRPC lock-in (future Kotlin app ke liye REST hi
 rahega), bina version ke breaking change.
 
 Rule: Bina schema ke koi endpoint nahi banega.
+
+## Code (v1)
+
+`src/index.ts` me auth-api ke saare request schemas hain (login,
+refresh, password change/forgot/reset, TOTP verify/disable, app
+password create, admin create/state, invite accept). Password rule
+starting value hai: 10–128 characters — final policy code phase me
+lock hogi.
