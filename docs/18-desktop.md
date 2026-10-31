@@ -9,8 +9,8 @@ Exa verified: Tauri vs Electron 2026 comparison.
   (wahi Next.js web app ka frontend reuse hoga, jahan possible ho).
 - Kyu Tauri, Electron kyu nahi (default):
   - Installer size: Tauri aksar 3-15 MB, Electron aksar 50-150 MB
-    (Chromium + Node bundle ki wajah se).
-  - Idle memory: Tauri aksar 20-100 MB, Electron aksar 100-300 MB.
+    (Chromium + Node bundle ki wajah se) — ye ranges approximate aur app-dependent hain, primary source se verify nahi hue hain.
+  - Idle memory: Tauri aksar 20-100 MB, Electron aksar 100-300 MB — ye split bhi approximate hai, final mat samajhna: ek measured same-app benchmark me idle memory Tauri 142 MB vs Electron 149 MB mili thi. Windows 11 par WebView2 pehle se present hone ki assumption par installer-size story depend karti hai.
   - Security defaults: Tauri v2 me capabilities scoped hoti hain —
     kaun si window kaun sa plugin / filesystem path use kar sakti
     hai, ye saaf likha jata hai. Electron me bhi secure kiya ja

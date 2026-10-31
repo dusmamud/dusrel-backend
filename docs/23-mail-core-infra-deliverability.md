@@ -94,7 +94,7 @@ nahi tha:
 - Compromised account open relay na hone par bhi abuse bhej sakta
   hai, isliye per-user/per-IP rate limit, login-failure monitoring,
   aur fail2ban-style blocking Day-1 config me hoga, Phase 4 me nahi.
-  (Detail `22-...` me hai.)
+  (Detail `docs/22-mail-core-security-bot-ddos.md` me hai.)
 
 ## P0-5. HELO/EHLO hostname aur FCrDNS check
 

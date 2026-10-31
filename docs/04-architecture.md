@@ -5,7 +5,7 @@ Status: DRAFT — 2026-10-31
 ## High-level flow (shabd me diagram)
 
 ```
-User browser / PWA (Next.js, Pages)
+User browser / PWA (Next.js, Cloudflare Pages)
         |  HTTPS, REST + JMAP
         v
   +-----+-------------------------------+

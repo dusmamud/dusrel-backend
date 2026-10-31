@@ -28,13 +28,14 @@ dusrel-backend/
     README.md           # deploy plan, workflow files baad me
 ```
 
-Poore suite (frontend ke saath) ka structure `README.md` me hai.
+Web side ka structure alag repo `dusrel-web` me hai (web client monorepo: `apps/mail`, `apps/drive`, `apps/chat`, `apps/meet`, `apps/landing`, `packages/ui`, `packages/api-client`) — `README.md` me sirf is backend folder ka tree hai.
 Is backend folder me frontend code kabhi nahi aayega.
 
 Client docs ke liye alag hissa hai, code ke liye nahi:
 
 ```
 clients/
+  web-app/README.md          # Web spec ka link (`docs/20-web-app.md`), code is folder me nahi, `dusrel-web` repo me banega
   android-native/README.md   # Kotlin + Compose spec ka link, code alag repo me
   ios-swift/README.md        # Swift + SwiftUI spec ka link, code alag repo me
   desktop-tauri/README.md    # Tauri v2 spec ka link, code alag repo me

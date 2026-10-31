@@ -15,8 +15,7 @@ ya API contract banaye.
 
 Frontend is folder me nahi hai. Har web app (mail, drive, chat, meet)
 alag Cloudflare Pages project par deploy hogi, aur is folder ke backend
-services se REST API ke through baat karegi. Frontend ka repo/structure
-alag se decide hoga; yahan sirf backend ka sach hai.
+services se REST API ke through baat karegi. Frontend web code alag repo me hai — `dusmamud/dusrel-web` (PUBLIC, main) — web apps ka code wahi banega, is backend repo me nahi; yahan sirf backend ka sach hai.
 
 ## Vision — ek line me
 
@@ -27,13 +26,13 @@ design system aur ek hi crypto layer share kare.
 
 ## Product map
 
-| App | Status | Backend service (is folder me) | Notes |
+| App | Status | Backend service / docs scope (is folder me) | Notes |
 |---|---|---|---|
 | Mail | Phase 1 — pehla product | `services/mail-api/` + `services/mail-server/` | Stalwart mail server, VPS-only |
 | Drive | Future | `services/drive-api/` | R2 files, sharing, E2EE files baad me |
 | Chat | Future | `services/chat-api/` | WebSocket, persistent service |
 | Meet | Future | `services/meet-api/` | LiveKit SFU, VPS-only media |
-| Web app (pehla client) | Phase 1 — sabse pehle | `clients/web-app/` | Next.js frontend-only, static export, Pages + PWA — `docs/20-web-app.md` |
+| Web app (pehla client) | Phase 1 — sabse pehle | `clients/web-app/` (scope doc only, code is folder me nahi) | Next.js frontend-only, static export, Cloudflare Pages + PWA — `docs/20-web-app.md`. Web code `dusrel-web` repo me banega |
 | Auth (shared) | Phase 1 — sab apps ke liye | `services/auth-api/` | Single SSO, ek login sab apps ke liye |
 | Android native (future) | Docs only, code alag repo me hoga | `clients/android-native/` | Kotlin + Compose, Room, Keystore — `docs/16-android-native.md` |
 | iOS Swift (future) | Docs only, code alag repo me hoga | `clients/ios-swift/` | Swift + SwiftUI, SwiftData, Keychain — `docs/17-ios-swift.md` |
@@ -98,6 +97,11 @@ dusrel-backend/
     18-desktop.md
     19-client-security-sync.md
     20-web-app.md
+    21-mail-core-user-flows.md
+    22-mail-core-security-bot-ddos.md
+    23-mail-core-infra-deliverability.md
+    24-mail-core-e2ee-privacy.md
+    25-mail-core-day1-checklist.md
   clients/
     web-app/README.md          # pehla client, spec docs/20 me hai
     android-native/README.md   # docs only, code alag repo me hoga

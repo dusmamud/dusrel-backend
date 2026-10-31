@@ -59,9 +59,8 @@ Android wale rule ka iOS version:
   bahar nahi niklegi, sirf operation wahi hoga.
 - Biometric: `LAContext.evaluatePolicy` platform method se, apna
   custom biometric UI nahi, aur fallback PIN hamesha hoga.
-- App integrity: App Attest API (iOS 14+) ka evaluate baad me,
-  abuse badhe tab.
-- Privacy manifest: `Info.plist` me har permission ka reason,
+- App integrity: App Attest API (iOS 14+) ka evaluate public launch se pehle karna hoga (Phase 1 blocker nahi, pre-public-launch gate).
+- Privacy manifest: `PrivacyInfo.xcprivacy` file me har permission ka reason,
   tracking ke liye ATT ka sahi use, bina zaroorat ke permission
   nahi mangi jayegi.
 - Code: Release build me Swift compiler optimization, debug

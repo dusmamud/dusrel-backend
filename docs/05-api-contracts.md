@@ -84,11 +84,11 @@ karke ek hi endpoint me mat dalna.
 
 `services/mail-server/` ek HTTP API nahi hai, ye Stalwart infra hai.
 Iska contract SMTP / IMAP / JMAP protocol hai, REST nahi. Is folder
-me code nahi, Stalwart ka deployment aur DNS doc hoga (`08-...`).
+me code nahi, Stalwart ka deployment aur DNS doc hoga (`docs/08-mail-deliverability.md`).
 
 ## Frontend integration rule
 
-- Frontend (Next.js, Pages) har backend se sirf is doc ke contracts
+- Frontend (Next.js, Cloudflare Pages) har backend se sirf is doc ke contracts
   se baat karega.
 - Frontend me API URL env se aayega (`NEXT_PUBLIC_*`), hardcode nahi.
 - E2EE encrypt/decrypt frontend (browser) me hoga, API par plaintext

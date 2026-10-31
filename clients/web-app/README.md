@@ -11,7 +11,6 @@ Web apps: mail, drive, chat, meet, landing — har ek ka alag Pages
 project hoga, har ek isi backend (Hono services + Stalwart +
 Cockroach + R2) se judega.
 
-Web app ka code jab banega to frontend repo / monorepo ke `apps/`
-hisse me banega (is backend repo me backend code ki tarah nahi),
+Web app ka code jab banega to `dusrel-web` repo me banega (PUBLIC, main — web client monorepo, `apps/` hisse me), is backend repo me nahi
 aur ye folder sirf uska scope/link rakhega. Abhi is folder me koi
 code nahi hai.

@@ -135,7 +135,7 @@ hoga, warna tester verify nahi kar payega.
 6. Signature identity ke hisaab se, quoted text ke upar ya neeche,
    user ki setting se lage.
 
-**E2EE warning (detail `24-...` me hai):** E2EE mail ka reply/
+**E2EE warning (detail `docs/24-mail-core-e2ee-privacy.md` me hai):** E2EE mail ka reply/
 forward quoted decrypted history ko naye ciphertext ke andar fold
 karega, warna refuse/warn karega — silently plaintext quote nahi
 hoga.

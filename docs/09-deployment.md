@@ -15,7 +15,7 @@ Status: DRAFT — 2026-10-31
 
 ### Workers ka sahi scope — dobara, kyunki ye galti ho chuki hai
 
-- Workers par ja sakta hai: Hono HTTP API, frontend (vinext/Workers
+- Workers par ja sakta hai: Hono HTTP API, frontend (vinext/Workers rasta — beta Vite plugin, SSR chahiye ho to compatibility check + alag ADR ke baad hi; static ke liye Cloudflare Pages hi default hai)
   rasta, agar SSR chahiye ho to).
 - Workers par NAHI ja sakta hai: Stalwart mail server, LiveKit media.
 - Reason: Workers par general inbound TCP listener nahi hai,
@@ -36,7 +36,7 @@ banengi jab user us deploy ke liye approve karega. Plan ye hai:
 - Secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
   Render deploy hook, VPS SSH key — sab GitHub Secrets me, kabhi
   code me nahi.
-- Pages ke liye Direct Upload pattern use hoga (Git integration
+- Cloudflare Pages ke liye Direct Upload pattern use hoga (Git integration
   nahi), taaki Cloudflare ka 500 builds/month limit kharch na ho —
   ye pattern ShrinkIt me pehle use ho chuka hai.
 - Concurrency: ek service ka ek deploy ek waqt me, parallel deploy
@@ -72,7 +72,7 @@ aur use turant fix karna hoga.
 
 ## Rollback
 
-- Har deploy ka pehla version (Docker image tag / Pages deployment)
+- Har deploy ka pehla version (Docker image tag / Cloudflare Pages deployment)
   rollback ke liye rakha jayega.
 - DB migration rollback ka plan har migration ke saath likhna hai —
   bina rollback plan ke migration prod par nahi chalegi.

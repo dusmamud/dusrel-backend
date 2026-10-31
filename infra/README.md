@@ -9,4 +9,4 @@ DKIM private key — ye sab env / Secure Vault me rahenge, kabhi
 is folder me nahi.
 
 Deploy map ka sach `docs/09-deployment.md` me hai:
-Stalwart + LiveKit VPS-only, Hono APIs Render/VPS, web apps Pages.
+Stalwart + LiveKit VPS-only, Hono APIs Render/VPS, web apps Cloudflare Pages.

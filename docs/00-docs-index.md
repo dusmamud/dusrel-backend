@@ -12,7 +12,7 @@
 | `08-mail-deliverability.md` | Mail Gmail/Outlook inbox me kaise pahuchega, spam me kyu nahi? | Infra + mail dev |
 | `09-deployment.md` | Kya kahan deploy hoga, VPS kaise badlega, Workers ka scope kya hai? | Infra |
 | `10-project-structure.md` | Folder, naming, shared packages ke rules kya hain? | Har naya contributor |
-| `11-roadmap.md` | Phase 1, 2, 3, 4 me kya, kis order me? | Product + dev |
+| `11-roadmap.md` | Phase 1, 2, 3, 4, 5 me kya, kis order me? | Product + dev |
 | `12-decisions-adr.md` | Har bada decision kyu liya, rejected option kya tha? | Reviewer, future dev |
 | `13-testing-qa.md` | Launch se pehle kaun se test pass hone hi chahiye? | QA + dev |
 | `14-operations-runbook.md` | Backup, monitoring, outage me kya karna hai? | Ops |
@@ -20,8 +20,8 @@
 | `16-android-native.md` | Android native app ka stack, offline-first, security kya hoga? | Android dev |
 | `17-ios-swift.md` | iOS Swift app ka stack, SwiftData, Keychain kya hoga? | iOS dev |
 | `18-desktop.md` | Desktop app Tauri se kyu, Electron kab, security kya hogi? | Desktop dev |
-| `19-client-security-sync.md` | Teenon client par ek hi security + sync rulebook kya hai? | Sab client dev |
-| `20-web-app.md` | Web app ka poora spec kya hai — pehla client, Pages, PWA, E2EE? | Web dev — pehle ye, native se pehle |
+| `19-client-security-sync.md` | Native clients (Android, iOS, Desktop) par ek hi security + sync rulebook kya hai? Web ki security `docs/20` me hai. | Sab client dev |
+| `20-web-app.md` | Web app ka poora spec kya hai — pehla client, Cloudflare Pages, PWA, E2EE? | Web dev — pehle ye, native se pehle |
 | `21-mail-core-user-flows.md` | Mail ke step-by-step user flows kya hain, Day 1 ke flow gaps kaun se the? | Product + web dev |
 | `22-mail-core-security-bot-ddos.md` | Bot, brute-force, DDoS, outbound spam, takeover se kaise bachenge? | Security + infra |
 | `23-mail-core-infra-deliverability.md` | Deliverability, bounce/queue, backup order, Cockroach test ke gaps kaun se the? | Infra + mail dev |

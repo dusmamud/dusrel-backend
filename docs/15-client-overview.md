@@ -21,7 +21,7 @@ best practice, Tauri vs Electron comparison, OWASP Mobile Security).
 
 | Client | Language / UI | Backend se kaise judega |
 |---|---|---|
-| Web (pehla client) | Next.js, Pages | REST + JMAP | Poora spec `docs/20-web-app.md` me hai |
+| Web (pehla client) | Next.js, Cloudflare Pages — poora spec `docs/20-web-app.md` me hai | REST + JMAP |
 | Android native | Kotlin + Jetpack Compose | REST + IMAP/JMAP (mail), REST (drive/chat/meet) |
 | iOS Swift | Swift + SwiftUI | REST + IMAP/JMAP (mail), REST (drive/chat/meet) |
 | Desktop | Tauri v2 (Rust + web frontend) | REST + JMAP, local OS keychain ke saath |
@@ -51,7 +51,7 @@ local cache aur crypto (browser/device key) ka kaam karega.
    nahi banaya jayega.
 5. **Ek hi offline rule:** Local data source hi UI ka source of
    truth hoga, network sirf sync karega (Android docs ka offline-first
-   rule, iOS/Desktop par bhi wahi principle).
+   rule, iOS/Desktop par bhi wahi principle). Matlab: UI local data ko source maan kar dikhayega, lekin final sach server hi hoga (`docs/19-client-security-sync.md` ke hisaab se).
 
 ## Alag — har platform me kya alag hoga
 
@@ -82,7 +82,7 @@ Web ke baad order abhi lock nahi hai, lekin docs ka order ye hai:
 2. iOS Swift — Android ke baad, jab API stable ho jaye, taaki iOS
    me API dobara na badle.
 3. Desktop (Tauri) — web frontend reuse hone ki wajah se iska kaam
-   Android/iOS se kam hoga, lekin iska order user decide karega.
+   Android/iOS se kam hoga; docs order me Desktop teesra hai (Windows pehle, phir macOS, phir Linux — `docs/18-desktop.md` ka sequence), final launch order user confirm karega.
 
 Koi client tabhi shuru hoga jab uska backend API (mail/drive/chat)
 stable ho. API badalte hue client banana dobara kaam badhata hai.

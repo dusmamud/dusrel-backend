@@ -9,7 +9,7 @@ se theek ki ja rahi hai.
 
 Web app Dusrel suite ka pehla client hai, aur Android / iOS /
 Desktop se pehle banega. Mail ka webmail, Drive ka web UI, Chat aur
-Meet ka web UI — ye sab web apps hain, alag alag Pages project par.
+Meet ka web UI — ye sab web apps hain, alag alag Cloudflare Pages project par.
 
 Web app "sirf website" nahi hai — ye poora app hai, jo browser me
 chalta hai aur PWA ke taur par phone/desktop par install bhi ho
@@ -22,7 +22,7 @@ sakta hai, jab tak native app na aaye.
   seedha deploy hota hai, isliye ye mode chuna hai
 - Language: TypeScript, strict
 - UI: React 19 + Tailwind v4 + Dusrel design system
-  (`packages/ui` jaisa shared system, frontend repo me)
+  (`dusrel-web` repo me banne wala shared design system — is backend repo ke `packages/` me `ui` package abhi nahi hai)
 - State: Zustand (client state) + TanStack Query (server state,
   API cache, retry)
 - Forms: React Hook Form + Zod (wahi Zod schemas jo backend ke
@@ -32,20 +32,18 @@ sakta hai, jab tak native app na aaye.
 - PWA: manifest + service worker (Serwist jaisa Next.js
   integration, code phase me ek lock hoga) + install prompt
 - Icons / branding: Dusrel logo, Poppins jaisi brand font ka
-  faisla frontend repo me lock hoga, har web app me ek hi hoga
+  faisla `dusrel-web` repo me lock hoga, har web app me ek hi hoga
 
 ## Kyu frontend-only, SSR kyu nahi (pehle se decide hua)
 
 - Backend alag Hono services par hai, isliye Next.js me Server
   Actions ya server-side backend logic nahi likhna — warna logic
   do jagah bat jayega.
-- Static export se Pages deploy seedha, sasta aur reliable hai —
+- Static export se Cloudflare Pages deploy seedha, sasta aur reliable hai —
   Cloudflare Pages docs me Next.js static export ka rasta isi
   liye diya gaya hai.
 - Agar kal SSR / server features chahiye hue to wahi code
-  vinext / Workers rasta apna sakta hai (Cloudflare ka naya
-  recommended rasta), lekin tab alag ADR banega. Abhi static hi
-  default hai.
+  vinext / Workers rasta apna sakta hai. Vinext kya hai: Cloudflare ka beta Vite plugin hai jo Next.js API surface ko Cloudflare Workers par reimplement karta hai, aur Workers par Next.js chalane ka Cloudflare ka naya recommended rasta hai. Static export ke liye Cloudflare Pages hi default rahega; SSR par jaane se pehle vinext compatibility check + alag ADR chahiye hoga, aur migration me auth cookie handling, deploy pipeline aur static-mode me tootne wali cheezein review hongi. Abhi static hi default hai.
 - Static export me jo cheezein nahi chalengi, wo pehle se saaf
   hain: Server Actions, server-side headers (wo proxy / Pages
   `_headers` se honge), aur dynamic server rendering. Inka
@@ -53,7 +51,7 @@ sakta hai, jab tak native app na aaye.
 
 ## Har web app — mail, drive, chat, meet, landing
 
-| Web app | Pages project (example) | Kaam |
+| Web app | Cloudflare Pages project (example) | Kaam |
 |---|---|---|
 | mail | mail.dusrel.com | Inbox, compose, reply, folders, alias, E2EE webmail |
 | drive | drive.dusrel.com | Files, folders, sharing, upload/download |
@@ -61,7 +59,7 @@ sakta hai, jab tak native app na aaye.
 | meet | meet.dusrel.com | LiveKit rooms, video UI |
 | landing | dusrel.com | Product page, login link, privacy/terms link |
 
-Har web app ka alag Pages project, alag env (`NEXT_PUBLIC_API_URL`
+Har web app ka alag Cloudflare Pages project, alag env (`NEXT_PUBLIC_API_URL`
 us app ke backend ka), alag deploy workflow hoga — ek app ka deploy
 dusre ko tode nahi.
 
@@ -88,7 +86,7 @@ dusre ko tode nahi.
 ## E2EE — web par kaise hoga (sabse important)
 
 - Seed phrase, keypair aur encrypt/decrypt **browser me** hoga —
-  OpenPGP.js + WebCrypto + IndexedDB (detail `docs/07-...` me hai).
+  OpenPGP.js + WebCrypto + IndexedDB (detail `docs/07-security-e2ee.md` me hai).
 - Private key kabhi server ko nahi jayegi, aur service worker ke
   cache me plaintext mail nahi rahega.
 - Service worker ko secure rakhna hai: HTTPS hi chalega, push
@@ -100,7 +98,7 @@ dusre ko tode nahi.
 
 ## Security — web best practice
 
-- HTTPS only, HSTS, CSP headers Pages `_headers` se.
+- HTTPS only, HSTS, CSP headers Cloudflare Pages `_headers` se.
 - Token storage: access token memory me prefer hoga, refresh token
   ka storage rule (httpOnly cookie vs local storage) code phase me
   security review ke baad lock hoga — abhi dono me se ek ko final

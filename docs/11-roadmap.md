@@ -25,7 +25,7 @@ badho" bolega. Usse pehle code nahi likha jayega.
 - Webmail (frontend, is folder ke bahar): inbox, compose, reply,
   folders, trash, attachment
 - Backup + monitoring ka basic setup
-- Acceptance: `13-testing-qa.md` ke P0 test pass
+- Acceptance: `13-testing-qa.md` ke P0 test pass + `docs/25-mail-core-day1-checklist.md` ke P0 rules likhe hue hon (donon ek dusre se cross-link hain, ek ke bina Phase 1 build shuru nahi hoga)
 
 ## Phase 2 — Mail polish
 
@@ -62,15 +62,15 @@ aur security doc banega, phir code:
 Koi future product Phase 1 ke P0 ko slow nahi karega. Agar Drive ka
 kaam Mail ke P0 se takrayega to Mail pehle poora hoga.
 
-## Phase 5 — Clients: Web pehle, phir Android, iOS, Desktop
+## Phase 5 — Clients: Web pehle (Phase 1 client), phir native clients
+
+Note: Web Phase 1 ka pehla client hai, isliye uska spec Phase 1 me bhi hai aur client docs me bhi — ye double listing hai, order ka contradiction nahi hai. Native clients ka order abhi lock nahi hai (`docs/15-client-overview.md` ke hisaab se); docs ka order Android, iOS, Desktop hai, aur neeche wale bullets usi docs order ko follow karte hain, final lock pending hai.
 
 Web app Phase 1 ka pehla client hai, isliye uska spec
 (`docs/20-web-app.md`) bhi docs me hai — client docs me web ka
 sirf ek line me zikr rehna kami thi, is doc se theek ki gayi hai.
 
 Docs abhi se ban gaye hain (`docs/15` se `docs/20` tak), code baad me:
-
-Docs abhi se ban gaye hain (`docs/15` se `docs/19` tak), code baad me:
 
 - Android native pehle (Kotlin + Compose, offline-first, Keystore)
 - iOS Swift uske baad (Swift + SwiftUI, SwiftData, Keychain +

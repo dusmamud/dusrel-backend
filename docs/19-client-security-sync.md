@@ -1,4 +1,6 @@
-# Client Security & Sync — Android, iOS, Desktop ke liye ek rulebook
+# Client Security & Sync — Android, iOS, Desktop (native clients) ke liye ek rulebook
+
+Note: Ye rulebook native clients ke liye hai; web app ki security `docs/20-web-app.md` me hai.
 
 Status: DRAFT — 2026-10-31
 Exa verified: OWASP Mobile Application Security Cheat Sheet.
@@ -72,14 +74,12 @@ Exa verified: OWASP Mobile Application Security Cheat Sheet.
   karke nahi lega — ye escrow ban jayega, aur E2EE ka dawa toot
   jayega.
 
-## App integrity & tamper (baad me, abuse badhe tab)
+## App integrity & tamper (pre-public-launch gate — Phase 1 blocker nahi)
 
 - Android: Play Integrity API evaluate karna.
 - iOS: App Attest API evaluate karna.
 - Desktop: Code signing + updater signature verify karna.
-- Ye teeno Phase 1 ke must-have nahi hain, lekin abuse badhe to
-  inke bina public launch risky hoga — isliye docs me pehle se
-  likha hai.
+- Ye teeno Phase 1 ke must-have nahi hain, lekin public launch se pehle inko evaluate + decide karna hoga — abuse aane ke baad evaluate karna late hoga, isliye ye pre-public-launch gate hai, reactive trigger nahi.
 
 ## Release checklist — har client, har release
 
