@@ -21,7 +21,7 @@ best practice, Tauri vs Electron comparison, OWASP Mobile Security).
 
 | Client | Language / UI | Backend se kaise judega |
 |---|---|---|
-| Web (pehle se) | Next.js, Pages | REST + JMAP |
+| Web (pehla client) | Next.js, Pages | REST + JMAP | Poora spec `docs/20-web-app.md` me hai |
 | Android native | Kotlin + Jetpack Compose | REST + IMAP/JMAP (mail), REST (drive/chat/meet) |
 | iOS Swift | Swift + SwiftUI | REST + IMAP/JMAP (mail), REST (drive/chat/meet) |
 | Desktop | Tauri v2 (Rust + web frontend) | REST + JMAP, local OS keychain ke saath |

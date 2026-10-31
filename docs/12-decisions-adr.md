@@ -78,6 +78,16 @@ likha jayega. Bina ADR ke bada decision code me nahi jayega.
 - Rejected: Jitsi (taiyaar UI hai, lekin Dusrel ka custom branded
   Meet banane ke liye control kam hai), khud SFU banana.
 
+## ADR-013 — Web app pehla client hai, uska alag spec hoga
+
+- Decision: Web app ko client docs me sirf ek row me nahi rakha
+  jayega — uska poora spec `docs/20-web-app.md` me hoga, kyunki
+  web hi pehla client hai aur Tauri desktop bhi isi frontend ko
+  reuse karega.
+- Reason: Client docs (15-19) me web ka poora spec missing tha —
+  user ne ye kami pakdi, aur is ADR + doc se theek ki gayi hai.
+- Status: Docs ke liye locked, code baad me frontend repo me banega.
+
 ## ADR-010 — Clients: native alag, docs central
 
 - Decision: Android native (Kotlin), iOS Swift (SwiftUI) aur Desktop

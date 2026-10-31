@@ -21,6 +21,7 @@
 | `17-ios-swift.md` | iOS Swift app ka stack, SwiftData, Keychain kya hoga? | iOS dev |
 | `18-desktop.md` | Desktop app Tauri se kyu, Electron kab, security kya hogi? | Desktop dev |
 | `19-client-security-sync.md` | Teenon client par ek hi security + sync rulebook kya hai? | Sab client dev |
+| `20-web-app.md` | Web app ka poora spec kya hai — pehla client, Pages, PWA, E2EE? | Web dev — pehle ye, native se pehle |
 
 ## Docs ke version rule
 

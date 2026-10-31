@@ -62,7 +62,13 @@ aur security doc banega, phir code:
 Koi future product Phase 1 ke P0 ko slow nahi karega. Agar Drive ka
 kaam Mail ke P0 se takrayega to Mail pehle poora hoga.
 
-## Phase 5 — Clients: Android, iOS, Desktop (future, docs ready hain)
+## Phase 5 — Clients: Web pehle, phir Android, iOS, Desktop
+
+Web app Phase 1 ka pehla client hai, isliye uska spec
+(`docs/20-web-app.md`) bhi docs me hai — client docs me web ka
+sirf ek line me zikr rehna kami thi, is doc se theek ki gayi hai.
+
+Docs abhi se ban gaye hain (`docs/15` se `docs/20` tak), code baad me:
 
 Docs abhi se ban gaye hain (`docs/15` se `docs/19` tak), code baad me:
 

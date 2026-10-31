@@ -33,6 +33,7 @@ design system aur ek hi crypto layer share kare.
 | Drive | Future | `services/drive-api/` | R2 files, sharing, E2EE files baad me |
 | Chat | Future | `services/chat-api/` | WebSocket, persistent service |
 | Meet | Future | `services/meet-api/` | LiveKit SFU, VPS-only media |
+| Web app (pehla client) | Phase 1 — sabse pehle | `clients/web-app/` | Next.js frontend-only, static export, Pages + PWA — `docs/20-web-app.md` |
 | Auth (shared) | Phase 1 — sab apps ke liye | `services/auth-api/` | Single SSO, ek login sab apps ke liye |
 | Android native (future) | Docs only, code alag repo me hoga | `clients/android-native/` | Kotlin + Compose, Room, Keystore — `docs/16-android-native.md` |
 | iOS Swift (future) | Docs only, code alag repo me hoga | `clients/ios-swift/` | Swift + SwiftUI, SwiftData, Keychain — `docs/17-ios-swift.md` |
@@ -96,7 +97,9 @@ dusrel-backend/
     17-ios-swift.md
     18-desktop.md
     19-client-security-sync.md
+    20-web-app.md
   clients/
+    web-app/README.md          # pehla client, spec docs/20 me hai
     android-native/README.md   # docs only, code alag repo me hoga
     ios-swift/README.md        # docs only, code alag repo me hoga
     desktop-tauri/README.md    # docs only, code alag repo me hoga
