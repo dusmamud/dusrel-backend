@@ -26,12 +26,19 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/config ./packages/config
 COPY packages/utils ./packages/utils
 COPY packages/auth ./packages/auth
+COPY packages/address ./packages/address
 COPY packages/api-contracts ./packages/api-contracts
 COPY packages/db ./packages/db
 COPY services/auth-api ./services/auth-api
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @dusrel/auth-api build
+# Sirf service ka build kaafi NAHI hai: workspace packages ki
+# dist/ gitignored hai, isliye fresh image me deps pehle build
+# hone chahiye warna TS2307 (Cannot find module @dusrel/auth /
+# @dusrel/address) se build fail hota hai — pehli deploy run me
+# yehi hua tha. pnpm -r build CI wali hi order me sab build
+# karta hai (deps pehle, service baad me).
+RUN pnpm -r build
 
 WORKDIR /app/services/auth-api
 EXPOSE 3001

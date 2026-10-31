@@ -24,12 +24,17 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/config ./packages/config
 COPY packages/utils ./packages/utils
 COPY packages/auth ./packages/auth
+COPY packages/address ./packages/address
 COPY packages/api-contracts ./packages/api-contracts
 COPY packages/db ./packages/db
 COPY services/mail-api ./services/mail-api
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @dusrel/mail-api build
+# Sirf service ka build kaafi NAHI hai (auth-api wali hi baat):
+# deps ki dist/ gitignored hai, fresh image me pehle deps build
+# hone chahiye warna TS2307 se build fail hota hai. pnpm -r build
+# CI wali hi order me sab build karta hai.
+RUN pnpm -r build
 
 WORKDIR /app/services/mail-api
 EXPOSE 3002
