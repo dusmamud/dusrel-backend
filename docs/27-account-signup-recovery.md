@@ -346,8 +346,71 @@ ko kabhi nahi bheje jate. Creation ka step-by-step flow ye hai:
    test, public-signup velocity + disposable-domain test, reserved
    names test, deleted-address recycle-nahi test.
 
+## 11. System sender — OTP/verification mail kis email se jayega
+
+Ye section is doc me baad me add hua hai, kyunki pehle docs me OTP/
+verification mail ka sender kahin define hi nahi tha — sirf `abuse@`
+aur `postmaster@` mandatory monitored inbound mailboxes ke taur par
+the (`docs/22`, `docs/23`), sender ke taur par nahi. Ab ye DRAFT rule
+hai:
+
+1. **Bhejne wala system hoga, koi insaan nahi:** Na user ka apna
+   Dusrel address, na kisi admin ka personal email, na kisi employee
+   ka mailbox. OTP/verification/reset mail ek fixed system address
+   se jayega.
+2. **Proposed sender (domain abhi bhi docs me example hai, isliye ye
+   bhi example hai):** From: `Dusrel <account@dusrel.com>`,
+   Reply-To: `support@dusrel.com`.
+   - `noreply@` mat use karo — noreply trust kharab karta hai, user
+     ka reply kahin nahi jata, aur "ye OTP maine nahi manga" wala
+     support sawaal dab jata hai. Reply-To monitored support mailbox
+     hona chahiye.
+   - From name pehchana hua hona chahiye ("Dusrel"), taaki user
+     usko spam na samjhe.
+   - `postmaster@`/`abuse@` ko sender mat banao — wo ISP/postmaster
+     reports aur abuse complaints ke liye inbound mailboxes hain,
+     unse OTP bhejna unka kaam bigaad dega.
+3. **Bhejne ka rasta:** Dusrel ka apna Stalwart SMTP, VPS se hi.
+   Us sending domain par SPF + DKIM (2048-bit) + DMARC alignment
+   hona chahiye, valid PTR, TLS — Gmail guidelines: sab senders ke
+   liye SPF ya DKIM, bulk ke liye teeno, aur From domain ka SPF/
+   DKIM domain se align hona zaroori hai, warna DMARC fail hoga.
+   Spam rate Postmaster Tools me 0.30% se neeche rakhni hai.
+4. **Alag transactional pehchaan:** Account wale mails (OTP,
+   verification, reset, notification) ke liye alag address + alag
+   DKIM selector rakho, marketing se alag. Single VPS IP par IP
+   reputation to shared rahegi hi, isliye domain/selector ka alag
+   hona hi pehli line of defence hai — aur isi wajah se spam account
+   ko jaldi suspend karna OTP delivery ke liye bhi zaroori hai
+   (`docs/28` Section 5 dekho).
+5. **OTP ke rules (NIST 800-63B, starting proposals, lock nahi):**
+   Kam se kam 6 digits, CSPRNG se bana ho, lifetime 10 minute se
+   zyada nahi (link token wali 1 ghante ki expiry yahan nahi
+   chalegi — chhota code kamzor hota hai, isliye window chhoti hoti
+   hai), failed attempts bounded hon (starting proposal: 5 galat
+   koshish par code invalid, aur naya code bhejne se failed count
+   reset nahi hoga), per-recipient hourly send cap + per-minute
+   check cap hon, limit par generic 429 mile. OTP bhi database me
+   hashed store ho, plaintext me nahi, single-use ho.
+6. **OTP mail me kya hoga:** Purpose (kis kaam ke liye hai), code,
+   expiry (10 minute), aur "agar tumne nahi manga to ignore karo aur
+   support se sampark karo" — password kabhi nahi, aur aisa link
+   nahi jo click karte hi auto-login kara de.
+7. **OTP vs link ka fark:** Logged-in haalat me secondary email
+   verify karne ke liye OTP (same session me code type karna) achha
+   UX hai. Logged-out reset ke liye link behtar hai (Section 3) —
+   kyunki OTP + email akela reset ke liye kamzor padta hai. Dono
+   case me OTP/reset sirf verified secondary email par jayega,
+   kabhi usi Dusrel mailbox par nahi jisme user locked out hai.
+8. **Email OTP akela strong factor nahi hai:** Sensitive kaam ke
+   liye OTP ke saath existing session ya MFA bhi chahiye.
+
 ## Cross-references
 
+- `docs/28-admin-dashboard-moderation.md` — admin roles, account
+  states, spam lifecycle, appeal, aur dashboard scope. OTP delivery
+  ki reputation us doc ke spam-suspension rule par bhi depend karti
+  hai.
 - `docs/21-mail-core-user-flows.md` F1, F2, F3, F4, F5, F6, F16 —
   is doc ka base, ye doc unka extension hai.
 - `docs/02-prd.md` — public signup Phase 4 tak nahi, E2EE warning.
