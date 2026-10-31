@@ -61,10 +61,14 @@ dekhta hai:
 | `VPS_SSH_KEY` | VPS ka SSH private key | Job 3 |
 | `VPS_COMPOSE_DIR` | VPS par compose file wala directory (jahan `docker-compose.yml` hai, wahan `git pull` chalega) | Job 3 |
 
-Koi bhi secret set nahi hai to uska job skip hoga — workflow
-fail nahi hoga, sirf Job 1 (GHCR) chalega. Ye jaan-boojh kar
-hai: secrets lagne se pehle bhi Dockerfiles CI par verify ho
-jayen.
+Koi bhi secret set nahi hai to uska step skip message dekar
+success hota hai — workflow fail nahi hota (Render steps ke andar
+shell check hai, VPS ke liye pehle check step ka output hai).
+Ye jaan-boojh kar hai: secrets lagne se pehle bhi Dockerfiles
+CI par verify ho jayen. Dhyaan rahe: `secrets` context `if:`
+condition me allowed hi nahi hai — pehli push par isi wajah se
+poora deploy workflow reject hua tha (actionlint se fix verify
+hua hai).
 
 ### VPS deploy kaise kaam karta hai (coordinator integration fix)
 

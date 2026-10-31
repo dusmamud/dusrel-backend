@@ -10,15 +10,25 @@ name: Deploy (backend)
 #   hai, taaki har docs commit par images rebuild na hon.)
 #
 # Jobs (ek doosre se independent hain — koi job doosri ka wait
-# nahi karta, sirf apni condition dekhta hai):
+# nahi karta):
 # - Job 1 (build-images): HAMESHA chalta hai. Dono API images
 #   GHCR par push karta hai. Isse Dockerfiles pehli baar CI par
 #   verify bhi ho jayenge (ab tak wo sirf local files the).
-# - Job 2 (deploy-render): SIRF jab Render hook secrets set hon.
-#   Har hook apne step ki condition se chalta hai — ek hook set
-#   ho aur doosra na ho to sirf set wala chalega.
-# - Job 3 (deploy-vps): SIRF jab chaaron VPS secrets set hon.
-#   VPS par git pull + compose pull + up -d karta hai.
+# - Job 2 (deploy-render): HAMESHA chalta hai, lekin har hook step
+#   ke andar shell check hai — hook secret set nahi hai to step
+#   "skipped" likh kar success hota hai, fail nahi hota.
+# - Job 3 (deploy-vps): Pehla step secrets ki maujoodgi check
+#   karke output deta hai, SSH step sirf tab chalta hai jab
+#   chaaron secrets set hon — aadha VPS deploy kabhi try nahi
+#   hota.
+#
+# ZAROORI (pehli push par GitHub se seekha gaya): `secrets`
+# context `if:` condition me ALLOWED HI NAHI hai (na job-level
+# par, na step-level par) — isliye poora workflow file reject ho
+# gaya tha (run 41207570826, "workflow file issue", zero jobs).
+# Isliye secret-emptiness kabhi `if:` me check nahi hoti — sirf
+# env me lekar shell check ya steps output se gating hoti hai.
+# actionlint se verify kiya gaya hai (secrets-in-if errors zero).
 #
 # Secrets: koi bhi secret, hook URL, IP ya hostname is file me
 # HARDCODE NAHI hai — sab GitHub Secrets se aata hai (poori list
@@ -94,30 +104,52 @@ jobs:
   deploy-render:
     name: Deploy to Render (hooks)
     runs-on: ubuntu-24.04
-    # Koi bhi Render hook set nahi hai to poora job skip hoga.
-    if: ${{ secrets.RENDER_AUTH_DEPLOY_HOOK != '' || secrets.RENDER_MAIL_DEPLOY_HOOK != '' }}
+    # secrets context if: me allowed nahi hai, isliye har hook
+    # step ke andar shell check hai: secret set nahi hai to step
+    # skip message dekar success hota hai (fail nahi hota).
     steps:
       - name: Trigger auth-api deploy hook
-        if: ${{ secrets.RENDER_AUTH_DEPLOY_HOOK != '' }}
-        run: curl -fsS -X POST "$RENDER_AUTH_DEPLOY_HOOK"
+        run: |
+          if [ -n "$RENDER_AUTH_DEPLOY_HOOK" ]; then
+            curl -fsS -X POST "$RENDER_AUTH_DEPLOY_HOOK"
+          else
+            echo "RENDER_AUTH_DEPLOY_HOOK not set, skipping auth-api hook."
+          fi
         env:
           RENDER_AUTH_DEPLOY_HOOK: ${{ secrets.RENDER_AUTH_DEPLOY_HOOK }}
 
       - name: Trigger mail-api deploy hook
-        if: ${{ secrets.RENDER_MAIL_DEPLOY_HOOK != '' }}
-        run: curl -fsS -X POST "$RENDER_MAIL_DEPLOY_HOOK"
+        run: |
+          if [ -n "$RENDER_MAIL_DEPLOY_HOOK" ]; then
+            curl -fsS -X POST "$RENDER_MAIL_DEPLOY_HOOK"
+          else
+            echo "RENDER_MAIL_DEPLOY_HOOK not set, skipping mail-api hook."
+          fi
         env:
           RENDER_MAIL_DEPLOY_HOOK: ${{ secrets.RENDER_MAIL_DEPLOY_HOOK }}
 
   deploy-vps:
     name: Deploy to VPS (SSH pull)
     runs-on: ubuntu-24.04
-    # Chaaron VPS secrets me se koi ek bhi missing ho to poora
-    # job skip hoga — aadha VPS deploy (bina key ya bina dir ke
-    # SSH) kabhi try nahi hoga.
-    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' && secrets.VPS_COMPOSE_DIR != '' }}
     steps:
+      - name: Check VPS secrets present
+        id: check
+        run: |
+          if [ -n "$VPS_HOST" ] && [ -n "$VPS_USER" ] && [ -n "$VPS_SSH_KEY" ] && [ -n "$VPS_COMPOSE_DIR" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "One or more VPS secrets not set, skipping VPS deploy."
+          fi
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_COMPOSE_DIR: ${{ secrets.VPS_COMPOSE_DIR }}
+
       - name: Pull + restart on VPS
+        # steps output se gating (secrets if: me allowed nahi hai).
+        if: steps.check.outputs.ready == 'true'
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
