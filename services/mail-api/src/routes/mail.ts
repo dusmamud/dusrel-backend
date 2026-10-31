@@ -4,6 +4,7 @@ import {
   patchMessageSchema,
   publishKeySchema,
   sendEmailSchema,
+  updateSettingsSchema,
 } from "@dusrel/api-contracts";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -36,6 +37,7 @@ function serializeEmail(e: {
   isRead: boolean;
   mailboxId: string;
   receivedAt: Date;
+  size: number;
   snippet: string;
   subject: string;
   to: string[];
@@ -57,11 +59,29 @@ export function createMailRoutes(config: MailConfig, service: MailService): Hono
     const { sub } = getMailAuth(c).claims;
     const query = parseQuery(c);
     const emails = await service.listEmails(sub, {
+      flaggedOnly: query.flaggedOnly,
       limit: query.limit,
       mailboxName: query.mailbox,
       query: query.query,
+      unreadOnly: query.unreadOnly,
     });
     return c.json({ messages: emails.map(serializeEmail) });
+  });
+
+  app.get("/mail/quota", async (c) => {
+    const { sub } = getMailAuth(c).claims;
+    return c.json({ quota: await service.getQuota(sub) });
+  });
+
+  app.get("/mail/settings", async (c) => {
+    const { sub } = getMailAuth(c).claims;
+    return c.json({ settings: service.getSettings(sub) });
+  });
+
+  app.put("/mail/settings", async (c) => {
+    const { sub } = getMailAuth(c).claims;
+    const body = parseBody(updateSettingsSchema, await c.req.json().catch(() => null));
+    return c.json({ settings: service.updateSettings(sub, body) });
   });
 
   app.get("/mail/messages/:id", async (c) => {

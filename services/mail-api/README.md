@@ -15,10 +15,33 @@ Karega (v1, implemented + tested):
   login-only lookup (public oracle nahi) — fingerprint abhi string
   ke taur par store hota hai, real PGP verification Phase 3 me aayega
 
+Karega (gaps slice, 31 Oct 2026, implemented + tested):
+- `GET /mail/quota` — quota 5 GB (docs/29 starting proposal),
+  usedBytes + messageCount JMAP se (fake me content byte length
+  ka estimate hai — headers/attachments fake me model nahi hote,
+  real JMAP client server-reported size dega), alias count/limit.
+- `GET /mail/settings` + `PUT /mail/settings` — displayName +
+  signature (app-level settings, Stalwart/Sieve settings nahi).
+  PUT merge karta hai. Signature send par auto-append NAHI hota
+  — webmail compose me is signature ko dikhayega, mail content
+  chup-chap badalna galat hota.
+- Alias-send check: `POST /mail/send` me `from` optional hai —
+  sirf primary address ya apna alias ho sakta hai, warna 403.
+  Na diya ho to primary (purana behaviour).
+- Search polish: query ab subject/from/snippet ke saath bodyText,
+  to aur cc me bhi dhoondhta hai; `unreadOnly` aur `flaggedOnly`
+  filters hain (query-string boolean galat parse na ho, isliye
+  enum + transform use hua hai — `z.coerce.boolean()` "false" ko
+  bhi true bana deta hai).
+- Key anti-probing: unknown address aur no-key address dono ko
+  byte-identical 404 milta hai — ye v1 me pehle se tha, is slice
+  me sirf test se prove kiya gaya hai (contract badla nahi hai).
+
 Nahi karega: SMTP transport chalana, mailbox storage khud
 sambhalna, mail body ko plaintext me log karna. Transport aur
 storage Stalwart + R2 ka kaam hai. Password-protected link
-(Phase 3/4) aur quota display is slice me nahi hain.
+(Phase 3/4) aur Sieve rules ka app-level hissa (Phase 2, Stalwart
+Sieve API ke through) is slice me nahi hain.
 
 Dependencies: `packages/auth` (JWT verify), `packages/api-contracts`
 (mail Zod schemas). `packages/crypto` abhi bhi docs-only hai (Phase 3),

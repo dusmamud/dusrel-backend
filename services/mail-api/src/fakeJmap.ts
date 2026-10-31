@@ -15,6 +15,26 @@ interface StoredEmail extends Email {
   userId: string;
 }
 
+/**
+ * Fake message size: subject + body + from + recipients ka UTF-8
+ * byte length. Headers aur attachments fake me model nahi hote,
+ * isliye ye ek estimate hai — real JMAP client server-reported
+ * size use karega. Size ko kabhi mailbox counts ki tarah apne
+ * store me duplicate-track mat karo (split-brain rule).
+ */
+function estimateSize(input: {
+  bodyText: string | null;
+  cc: string[];
+  from: string;
+  subject: string;
+  to: string[];
+}): number {
+  return Buffer.byteLength(
+    [input.subject, input.bodyText ?? "", input.from, ...input.to, ...input.cc].join("\n"),
+    "utf8",
+  );
+}
+
 /** API responses never carry the internal userId field. */
 function stripUser(email: StoredEmail): Email {
   const { userId: _ignored, ...rest } = email;
@@ -61,7 +81,9 @@ export class InMemoryJmapClient implements JmapClient {
   /** Test/dev helper only: simulate an inbound delivery into Inbox. */
   deliverEmail(
     userId: string,
-    input: Omit<Email, "id" | "mailboxId" | "receivedAt"> & { receivedAt?: Date },
+    input: Omit<Email, "id" | "mailboxId" | "receivedAt" | "size"> & {
+      receivedAt?: Date;
+    },
   ): Email {
     const inbox = this.mailboxByRole(userId, "inbox");
     if (!inbox) {
@@ -72,10 +94,19 @@ export class InMemoryJmapClient implements JmapClient {
       id: randomUUID(),
       mailboxId: inbox.id,
       receivedAt: input.receivedAt ?? new Date(),
+      size: estimateSize(input),
       userId,
     };
     this.emails.set(email.id, email);
     return email;
+  }
+
+  async getUsage(userId: string): Promise<{ messageCount: number; usedBytes: number }> {
+    const mine = [...this.emails.values()].filter((e) => e.userId === userId);
+    return {
+      messageCount: mine.length,
+      usedBytes: mine.reduce((sum, e) => sum + e.size, 0),
+    };
   }
 
   async listMailboxes(userId: string): Promise<Mailbox[]> {
@@ -96,7 +127,13 @@ export class InMemoryJmapClient implements JmapClient {
 
   async listEmails(
     userId: string,
-    options: { limit: number; mailboxId?: string; query?: string },
+    options: {
+      flaggedOnly?: boolean;
+      limit: number;
+      mailboxId?: string;
+      query?: string;
+      unreadOnly?: boolean;
+    },
   ): Promise<Email[]> {
     let list = [...this.emails.values()].filter((e) => e.userId === userId);
     if (options.mailboxId) {
@@ -108,8 +145,17 @@ export class InMemoryJmapClient implements JmapClient {
         (e) =>
           e.subject.toLowerCase().includes(q) ||
           e.from.toLowerCase().includes(q) ||
-          e.snippet.toLowerCase().includes(q),
+          e.snippet.toLowerCase().includes(q) ||
+          (e.bodyText ?? "").toLowerCase().includes(q) ||
+          e.to.some((t) => t.toLowerCase().includes(q)) ||
+          e.cc.some((t) => t.toLowerCase().includes(q)),
       );
+    }
+    if (options.unreadOnly) {
+      list = list.filter((e) => !e.isRead);
+    }
+    if (options.flaggedOnly) {
+      list = list.filter((e) => e.isFlagged);
     }
     list.sort((a, b) => b.receivedAt.getTime() - a.receivedAt.getTime());
     return list.slice(0, options.limit).map(stripUser);
@@ -137,6 +183,7 @@ export class InMemoryJmapClient implements JmapClient {
       isRead: true,
       mailboxId: sent.id,
       receivedAt: new Date(),
+      size: estimateSize(draft),
       snippet: draft.bodyText.slice(0, 200),
       subject: draft.subject,
       to: draft.to,

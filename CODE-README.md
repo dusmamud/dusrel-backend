@@ -126,3 +126,13 @@ npx -y pnpm@12.16.1 --filter @dusrel/auth-api test
     VPS par first run me verify karne hain. Fail2ban, CPU/RAM
     tool, alert channel ka final naam, aur automated queue
     alert abhi bhi OPEN hain (runbook me likha hai).
+12. **mail-api gaps slice (v1, 31 Oct 2026):**
+    `GET /mail/quota` (5 GB starting proposal, usage JMAP se),
+    settings GET/PUT (signature auto-append nahi hota),
+    alias-send ownership check (403 warna), search polish
+    (body/to/cc + unreadOnly/flaggedOnly, enum boolean parsing),
+    key anti-probing test se prove (contract unchanged — dono
+    cases ko pehle se identical 404 milta tha). **Tests:
+    mail-api 6 se 11 ho gaye, auth-api 11/11 wahi.** Sieve
+    app-level hissa aur password-protected link is slice me
+    nahi hain (Phase 2 / Phase 3, upar README me likha hai).

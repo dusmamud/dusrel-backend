@@ -26,9 +26,39 @@ export interface PublicKeyEntry {
   userId: string;
 }
 
+/**
+ * App-level user settings (docs/05): signature + display name.
+ * Ye Stalwart/Sieve settings nahi hain — Sieve ka app-level hissa
+ * Phase 2 me Stalwart ke through aayega. In-memory, lost on
+ * restart, jaise baaki mail-api v1 store.
+ */
+export interface UserSettings {
+  displayName: string;
+  signature: string;
+}
+
 export class MailStore {
   aliases = new Map<string, Alias>();
   keys = new Map<string, PublicKeyEntry>();
+  settings = new Map<string, UserSettings>();
+
+  getSettings(userId: string): UserSettings {
+    return this.settings.get(userId) ?? { displayName: "", signature: "" };
+  }
+
+  /** PUT merge karta hai: jo field nahi bheji, wo pehle wali rehti hai. */
+  updateSettings(
+    userId: string,
+    patch: { displayName?: string; signature?: string },
+  ): UserSettings {
+    const current = this.getSettings(userId);
+    const next: UserSettings = {
+      displayName: patch.displayName ?? current.displayName,
+      signature: patch.signature ?? current.signature,
+    };
+    this.settings.set(userId, next);
+    return next;
+  }
 
   createAlias(userId: string, address: string): Alias {
     const row: Alias = {

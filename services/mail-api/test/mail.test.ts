@@ -251,4 +251,136 @@ describe("mail-api", () => {
     });
     assert.equal(badFingerprint.status, 400);
   });
+
+  it("quota: defaults, then counts + usage after send and delivery", async () => {
+    const ctx = makeApp();
+    const token = tokenFor(USER_A);
+    const fresh = await req(ctx.app, "GET", "/mail/quota", { token });
+    assert.equal(fresh.status, 200);
+    assert.equal(fresh.json.quota.quotaBytes, 5_000_000_000);
+    assert.equal(fresh.json.quota.usedBytes, 0);
+    assert.equal(fresh.json.quota.messageCount, 0);
+    assert.equal(fresh.json.quota.aliasCount, 0);
+    assert.equal(fresh.json.quota.aliasLimit, 10);
+    await req(ctx.app, "POST", "/mail/send", {
+      body: { bodyText: "Quota test body.", subject: "Quota", to: ["priya@dusrel.example"] },
+      token,
+    });
+    ctx.jmap.deliverEmail(USER_A.id, {
+      bodyText: "Inbound quota body.",
+      cc: [],
+      from: "priya@dusrel.example",
+      isFlagged: false,
+      isRead: false,
+      snippet: "Inbound quota body.",
+      subject: "Inbound quota",
+      to: [USER_A.email],
+    });
+    const after = await req(ctx.app, "GET", "/mail/quota", { token });
+    assert.equal(after.json.quota.messageCount, 2);
+    assert.ok((after.json.quota.usedBytes as number) > 0);
+  });
+
+  it("settings: defaults, full PUT, partial PUT merges, too-long signature 400", async () => {
+    const ctx = makeApp();
+    const token = tokenFor(USER_A);
+    const fresh = await req(ctx.app, "GET", "/mail/settings", { token });
+    assert.deepEqual(fresh.json.settings, { displayName: "", signature: "" });
+    const full = await req(ctx.app, "PUT", "/mail/settings", {
+      body: { displayName: "Arav", signature: "— Arav" },
+      token,
+    });
+    assert.equal(full.status, 200);
+    assert.deepEqual(full.json.settings, { displayName: "Arav", signature: "— Arav" });
+    const partial = await req(ctx.app, "PUT", "/mail/settings", {
+      body: { signature: "— New sig" },
+      token,
+    });
+    assert.deepEqual(partial.json.settings, { displayName: "Arav", signature: "— New sig" });
+    const tooLong = await req(ctx.app, "PUT", "/mail/settings", {
+      body: { signature: "x".repeat(5001) },
+      token,
+    });
+    assert.equal(tooLong.status, 400);
+  });
+
+  it("alias-send: own alias works, other's address 403, no from means primary", async () => {
+    const ctx = makeApp();
+    const token = tokenFor(USER_A);
+    await req(ctx.app, "POST", "/mail/aliases", {
+      body: { address: "shop@dusrel.example" },
+      token,
+    });
+    const viaAlias = await req(ctx.app, "POST", "/mail/send", {
+      body: {
+        bodyText: "Alias body.",
+        from: "shop@dusrel.example",
+        subject: "Alias send",
+        to: ["priya@dusrel.example"],
+      },
+      token,
+    });
+    assert.equal(viaAlias.status, 201);
+    assert.equal(viaAlias.json.message.from, "shop@dusrel.example");
+    const others = await req(ctx.app, "POST", "/mail/send", {
+      body: {
+        bodyText: "Spoof body.",
+        from: USER_B.email,
+        subject: "Spoof",
+        to: ["priya@dusrel.example"],
+      },
+      token,
+    });
+    assert.equal(others.status, 403);
+    const primary = await req(ctx.app, "POST", "/mail/send", {
+      body: { bodyText: "Primary body.", subject: "Primary", to: ["priya@dusrel.example"] },
+      token,
+    });
+    assert.equal(primary.status, 201);
+    assert.equal(primary.json.message.from, USER_A.email);
+  });
+
+  it("key anti-probing: unknown address and no-key address give identical 404", async () => {
+    const ctx = makeApp();
+    const token = tokenFor(USER_A);
+    const unknown = await req(ctx.app, "GET", "/mail/keys/nobody%40dusrel.example", { token });
+    const noKey = await req(ctx.app, "GET", `/mail/keys/${encodeURIComponent(USER_B.email)}`, {
+      token,
+    });
+    assert.equal(unknown.status, 404);
+    assert.deepEqual(unknown.json, noKey.json);
+  });
+
+  it("search polish: body text searched, unreadOnly and flaggedOnly filter", async () => {
+    const ctx = makeApp();
+    const token = tokenFor(USER_A);
+    ctx.jmap.deliverEmail(USER_A.id, {
+      bodyText: "This body contains zebrauniqueword and nothing else.",
+      cc: [],
+      from: "priya@dusrel.example",
+      isFlagged: false,
+      isRead: false,
+      snippet: "Short snippet without the word.",
+      subject: "Body search subject",
+      to: [USER_A.email],
+    });
+    ctx.jmap.deliverEmail(USER_A.id, {
+      bodyText: "Flagged body.",
+      cc: [],
+      from: "priya@dusrel.example",
+      isFlagged: true,
+      isRead: true,
+      snippet: "Flagged body.",
+      subject: "Flagged one",
+      to: [USER_A.email],
+    });
+    const bodySearch = await req(ctx.app, "GET", "/mail/messages?query=zebrauniqueword", { token });
+    assert.equal((bodySearch.json.messages as unknown[]).length, 1);
+    const unread = await req(ctx.app, "GET", "/mail/messages?unreadOnly=true", { token });
+    assert.equal((unread.json.messages as unknown[]).length, 1);
+    const flagged = await req(ctx.app, "GET", "/mail/messages?flaggedOnly=true", { token });
+    assert.equal((flagged.json.messages as unknown[]).length, 1);
+    const badBool = await req(ctx.app, "GET", "/mail/messages?unreadOnly=yes", { token });
+    assert.equal(badBool.status, 400);
+  });
 });

@@ -37,6 +37,13 @@ export interface Email {
   isRead: boolean;
   mailboxId: string;
   receivedAt: Date;
+  /**
+   * Message size in bytes. Real JMAP me ye server-reported size
+   * hoga; fake me content ka UTF-8 byte length hai (headers /
+   * attachments fake me model nahi hote, isliye fake ka size ek
+   * estimate hai — quota endpoint is baat ko saaf likhta hai).
+   */
+  size: number;
   snippet: string;
   subject: string;
   to: string[];
@@ -52,10 +59,22 @@ export interface SendDraft {
 
 export interface JmapClient {
   getEmail(userId: string, emailId: string): Promise<Email | null>;
+  /**
+   * Quota usage — JMAP (source of truth) se, mail-api ke apne
+   * store se nahi (split-brain rule). Real client ise JMAP
+   * Email/query + server-reported sizes se banayega.
+   */
+  getUsage(userId: string): Promise<{ messageCount: number; usedBytes: number }>;
   listMailboxes(userId: string): Promise<Mailbox[]>;
   listEmails(
     userId: string,
-    options: { limit: number; mailboxId?: string; query?: string },
+    options: {
+      flaggedOnly?: boolean;
+      limit: number;
+      mailboxId?: string;
+      query?: string;
+      unreadOnly?: boolean;
+    },
   ): Promise<Email[]>;
   moveEmail(userId: string, emailId: string, mailboxId: string): Promise<Email | null>;
   patchEmail(

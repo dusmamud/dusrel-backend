@@ -40,6 +40,9 @@ export const RESERVED_LOCAL_PARTS = new Set([
 /** Alias limit per user — starting proposal from docs/29, not a lock. */
 export const ALIAS_LIMIT_PER_USER = 10;
 
+/** Quota per user — 5 GB (decimal), docs/29 starting proposal, not a lock. */
+export const QUOTA_BYTES_PER_USER = 5_000_000_000;
+
 function validateAliasAddress(address: string, primaryEmail: string): string {
   const lower = address.toLowerCase();
   const parts = lower.split("@");
@@ -95,7 +98,14 @@ export class MailService {
 
   async listEmails(
     userId: string,
-    options: { limit: number; mailboxId?: string; mailboxName?: string; query?: string },
+    options: {
+      flaggedOnly?: boolean;
+      limit: number;
+      mailboxId?: string;
+      mailboxName?: string;
+      query?: string;
+      unreadOnly?: boolean;
+    },
   ) {
     let mailboxId = options.mailboxId;
     if (!mailboxId && options.mailboxName) {
@@ -109,10 +119,39 @@ export class MailService {
       mailboxId = box.id;
     }
     return this.jmap.listEmails(userId, {
+      flaggedOnly: options.flaggedOnly,
       limit: options.limit,
       mailboxId,
       query: options.query,
+      unreadOnly: options.unreadOnly,
     });
+  }
+
+  /** Quota display (docs/05): usage JMAP se, limit starting proposal se. */
+  async getQuota(userId: string) {
+    const [boxes, usage] = await Promise.all([
+      this.jmap.listMailboxes(userId),
+      this.jmap.getUsage(userId),
+    ]);
+    return {
+      aliasCount: this.store.listAliasesByUser(userId).length,
+      aliasLimit: ALIAS_LIMIT_PER_USER,
+      mailboxCount: boxes.length,
+      messageCount: usage.messageCount,
+      quotaBytes: QUOTA_BYTES_PER_USER,
+      usedBytes: usage.usedBytes,
+    };
+  }
+
+  getSettings(userId: string) {
+    return this.store.getSettings(userId);
+  }
+
+  updateSettings(
+    userId: string,
+    patch: { displayName?: string; signature?: string },
+  ) {
+    return this.store.updateSettings(userId, patch);
   }
 
   async getEmail(userId: string, emailId: string) {
@@ -126,10 +165,31 @@ export class MailService {
 
   async sendEmail(
     userId: string,
-    from: string,
-    input: { bodyText: string; cc: string[]; subject: string; to: string[] },
+    primaryEmail: string,
+    input: {
+      bodyText: string;
+      cc: string[];
+      from?: string;
+      subject: string;
+      to: string[];
+    },
   ) {
-    return this.jmap.sendEmail(userId, { ...input, from });
+    // Alias-send permission check (docs/05): from sirf primary
+    // address ya apna alias ho sakta hai. Kisi aur ka address
+    // (dusre user ka primary ya alias) 403 hai — warna koi bhi
+    // kisi ke naam se mail bhej sakta. Na diya ho to primary.
+    const effectiveFrom = (input.from ?? primaryEmail).toLowerCase();
+    const owned =
+      effectiveFrom === primaryEmail.toLowerCase() ||
+      this.store.listAliasesByUser(userId).some((a) => a.address === effectiveFrom);
+    if (!owned) {
+      throw new ApiError(
+        403,
+        "forbidden",
+        "You can only send from your own address or alias",
+      );
+    }
+    return this.jmap.sendEmail(userId, { ...input, from: effectiveFrom });
   }
 
   async patchEmail(
@@ -230,6 +290,12 @@ export class MailService {
   }
 
   getKey(address: string): PublicKeyEntry {
+    // Anti-probing (docs/05), by design: ye lookup sirf key store
+    // me hota hai, user-existence check nahi hota. Isliye unknown
+    // address aur no-key address dono ko BYTE-IDENTICAL 404 milta
+    // hai — koi farq nahi batata ki address exist karta hai ya
+    // nahi. Ye v1 me pehle se hi tha; is slice me sirf test se
+    // prove kiya gaya hai (contract badla nahi gaya hai).
     const entry = this.store.getKey(address);
     if (!entry) {
       throw new ApiError(404, "not_found", "No public key for this address");

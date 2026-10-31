@@ -31,7 +31,10 @@ export function createMailApp(
   app.use(
     cors({
       allowHeaders: ["Authorization", "Content-Type"],
-      allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+      // PUT isliye hai kyunki /mail/settings PUT se update hota
+      // hai — bina iske browser se settings save karne par CORS
+      // preflight fail hota.
+      allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       credentials: true,
       origin: config.corsOrigin,
     }),
