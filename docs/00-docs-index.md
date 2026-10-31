@@ -22,6 +22,11 @@
 | `18-desktop.md` | Desktop app Tauri se kyu, Electron kab, security kya hogi? | Desktop dev |
 | `19-client-security-sync.md` | Teenon client par ek hi security + sync rulebook kya hai? | Sab client dev |
 | `20-web-app.md` | Web app ka poora spec kya hai — pehla client, Pages, PWA, E2EE? | Web dev — pehle ye, native se pehle |
+| `21-mail-core-user-flows.md` | Mail ke step-by-step user flows kya hain, Day 1 ke flow gaps kaun se the? | Product + web dev |
+| `22-mail-core-security-bot-ddos.md` | Bot, brute-force, DDoS, outbound spam, takeover se kaise bachenge? | Security + infra |
+| `23-mail-core-infra-deliverability.md` | Deliverability, bounce/queue, backup order, Cockroach test ke gaps kaun se the? | Infra + mail dev |
+| `24-mail-core-e2ee-privacy.md` | Key lifecycle, retention, deletion, privacy-policy content ke gaps kaun se the? | Security + product |
+| `25-mail-core-day1-checklist.md` | Mail Phase 1 shuru karne se pehle lock hone wali master checklist kya hai? | Sab — build se pehle ye |
 
 ## Docs ke version rule
 
