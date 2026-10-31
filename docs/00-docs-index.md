@@ -28,6 +28,7 @@
 | `24-mail-core-e2ee-privacy.md` | Key lifecycle, retention, deletion, privacy-policy content ke gaps kaun se the? | Security + product |
 | `25-mail-core-day1-checklist.md` | Mail Phase 1 shuru karne se pehle lock hone wali master checklist kya hai? | Sab — build se pehle ye |
 | `26-architecture-audit-findings.md` | A-Z docs ka technical cross-verification, real-world protocols, cloud limits aur fixes kya hain? | Sab — architecture review ke liye |
+| `27-account-signup-recovery.md` | Signup, forgot password, secondary recovery email, admin reset, seed restore ka A-Z flow kya hai? | Sab — account + recovery ke liye |
 
 ## Docs ke version rule
 

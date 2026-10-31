@@ -132,3 +132,37 @@ likha jayega. Bina ADR ke bada decision code me nahi jayega.
 - Reason: Docs 00-20 me Day-1 se ignore nahi karne wali cheezein (bot protection, outbound caps, key lifecycle, retention, deletion) sirf naam se thi ya missing thi; 4 parallel Exa-verified gap analyses ke baad unko detail me likha gaya.
 - Note: Ye sirf docs ka addition hai — isse koi stack, protocol, token-storage, PGP library ya sync-conflict decision lock nahi hota. `docs/25` ka gate ye hai ki Phase 1 build se pehle uske P0 rules likhe hue hon, aur `docs/13-testing-qa.md` me unke test cases add hone chahiye.
 - Status: DRAFT — docs ke liye istemal ho raha hai, final lock pending.
+
+## ADR-015 — Har service/worker apni best-fitted language me hoga
+
+- Decision: Ek language sab jagah zabardasti nahi chalegi. Har
+  service/worker ki language uske kaam se decide hogi, aur har
+  alag-language decision apne ADR me likha jayega.
+- Rule:
+  - Jahan sharing matter karti hai (frontend + app API): TypeScript
+    (ADR-002, v1) — shared Zod schemas, types, auth/crypto packages
+    ek baar likhe jayenge, dono jagah wahi chalenge.
+  - Jahan system/performance kaam hai, wahan us kaam ki best
+    language: mail server Stalwart (Rust, infra), Meet media LiveKit
+    (Go SFU, infra) — ye pehle se isi principle ke examples hain.
+  - Background/job workers: sirf API/DB glue ho to TypeScript/Node;
+    high-concurrency network ho to Go; heavy parsing, transcoding ya
+    predictable latency chahiye ho to Rust. Har worker ki language
+    uske design me likhi jayegi, default se nahi.
+  - Cloudflare Workers ki language: Workers first-class JavaScript,
+    TypeScript, Python aur Rust support karta hai, plus WASM ke through
+    Go, C++ wagera bhi chal sakte hain — lekin ye sirf language option
+    hai, hosting plan nahi. Backend ko alag se Workers par host karne
+    ka plan nahi hai (user clarification, 2026-10-31); Hono APIs ka
+    main plan Render Web Service ya VPS Docker hi hai (docs/09).
+    Workers par koi HTTP handler tabhi jayega jab uske liye alag ADR
+    banega.
+- Ye ADR-002 ko badalta nahi hai: v1 app backend/frontend TypeScript
+  hi rahega. Ye sirf ye principle likhta hai ki future me koi service
+  alag language me jayegi to wo us service ke kaam ki wajah se jayegi,
+  alag ADR ke saath — ek language ke rule ko todne ke liye nahi.
+- Rejected: "Sab kuch ek hi language me, chahe kaam kuch bhi ho" —
+  isse heavy services par performance ya concurrency ka nuksaan hota,
+  aur jahan sharing zaroori nahi wahan sharing ka fayda bhi nahi milta.
+- Status: DRAFT — docs ke liye istemal ho raha hai, final lock pending.
+  Stack overall abhi bhi PROPOSED hai.
