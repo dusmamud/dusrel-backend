@@ -101,3 +101,16 @@ npx -y pnpm@12.16.1 --filter @dusrel/auth-api test
    nahi; key fingerprint abhi string-only hai (real PGP verify
    Phase 3 me); fake me har email sirf ek mailbox me hota hai
    (real JMAP me kayi me ho sakta hai).
+10. **mail-server infra slice (v1, 31 Oct 2026):**
+    `services/mail-server/docker-compose.yml` (Stalwart 1.0.1 +
+    Caddy + auth-api + mail-api), `Caddyfile`, `.env.example`,
+    aur dono API Dockerfiles ban gaye hain. **Yahan sandbox me
+    Docker hi nahi hai, isliye `docker compose config` ya image
+    build tak verify nahi hua hai** — sirf YAML syntax, Caddy
+    target vs expose match, build context (repo root), aur
+    `.env` gitignore check hua hai. Stalwart v1 me hand-written
+    config file nahi hoti (first run par khud banti hai), isliye
+    koi nakli stalwart.toml nahi likha gaya hai — asli settings
+    WebUI se set hongi (mail-server README me first-run
+    checklist hai). VPS run + DNS + mail-tester proof abhi bhi
+    tumhare VPS par baaki hai.

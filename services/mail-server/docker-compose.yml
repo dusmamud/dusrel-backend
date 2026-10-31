@@ -1,0 +1,120 @@
+# Dusrel Mail VPS stack — Docker Compose (v1 slice)
+#
+# Ye file VPS par chalegi, yahan sandbox me nahi (yahan Docker hi
+# nahi hai). Stalwart + Caddy + Hono APIs ek hi compose me hain,
+# taaki VPS badalne par (3-4 din wala plan, docs/09) wahi file +
+# wahi env naye VPS par chal jaye — sirf A record, PTR aur
+# Cockroach allowlist badlenge.
+#
+# Secrets kabhi is file me nahi: sab .env se aate hain, aur .env
+# kabhi Git me nahi jayega (gitignore me hai). .env.example dekho.
+#
+# Port map (docs/08 + Stalwart docs):
+# - 25   SMTP inbound (dusre servers se mail lena) — VPS provider
+#        se outbound/inbound port 25 open hona chahiye, warna ye
+#        stack mail receive hi nahi karega. Pehle VPS par port 25
+#        ka retest karo (pehla test orgo-desktop par tha, VPS ka
+#        proof nahi hai).
+# - 465  SMTPS, 587 Submission (authenticated, STARTTLS) — users
+#        yahan se mail bhejte hain.
+# - 993  IMAPS — Thunderbird/Apple Mail/FairEmail yahan connect honge.
+# - 80/443 Caddy (HTTP APIs + ACME) — sirf HTTP traffic ke liye.
+#        SMTP/IMAP Caddy se proxy NAHI hote (wo TCP hain, HTTP nahi).
+# - 8080 Stalwart webadmin — SIRF 127.0.0.1 par bind hai, public
+#        internet par nahi (docs/22 ka rule). VPS par SSH se ya
+#        localhost se hi kholo. Kabhi 0.0.0.0:8080 mat karo.
+# - 4190 Sieve, 110/995 POP3 — Phase 1 me expose NAHI kiye gaye
+#        hain. Sieve Phase 2 me, POP3 sirf tab jab zaroorat ho.
+#        Kam khula port = kam attack surface (Stalwart docs ki tip).
+
+services:
+  stalwart:
+    image: stalwartlabs/stalwart:1.0.1
+    container_name: dusrel-stalwart
+    restart: unless-stopped
+    # First run par Stalwart /opt/stalwart/etc/config.toml banata
+    # hai aur admin password `docker logs dusrel-stalwart` me
+    # dikhata hai. Pehle login par password TURANT badlo.
+    volumes:
+      - stalwart-data:/opt/stalwart
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "993:993"
+      - "127.0.0.1:8080:8080"
+    environment:
+      # Stalwart apni settings WebUI/database me rakhta hai (v1 me
+      # koi hand-written stalwart.toml config file nahi hai — jo
+      # file first run par banti hai, wahi sach hai). Isliye yahan
+      # sirf hostname hint diya gaya hai; asli hostname/domain/
+      # storage/DKIM settings WebUI se set hongi (README dekho).
+      - TZ=UTC
+    # Healthcheck yahan nahi diya gaya hai — Stalwart image me
+    # curl/wget hai ya nahi, ye VPS par verify kiye bina claim
+    # nahi kar sakte. Galat healthcheck hamesha "unhealthy"
+    # dikhata, jo misleading hota. First run par image ke tools
+    # check karke healthcheck add karo.
+
+  caddy:
+    image: caddy:2
+    container_name: dusrel-caddy
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    depends_on:
+      - auth-api
+      - mail-api
+
+  auth-api:
+    # Build context REPO ROOT hai (../..), kyunki Dockerfile
+    # workspace root files (package.json, pnpm-lock, packages/*)
+    # copy karta hai. Context ko service folder rakhne par ye
+    # COPY fail hogi — ye common galti hai, isliye yahan likha hai.
+    build:
+      context: ../..
+      dockerfile: services/auth-api/Dockerfile
+    container_name: dusrel-auth-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - AUTH_JWT_SECRET=${AUTH_JWT_SECRET}
+      - AUTH_APP_URL=${AUTH_APP_URL}
+      - AUTH_CORS_ORIGIN=${AUTH_CORS_ORIGIN}
+    expose:
+      - "3001"
+
+  mail-api:
+    # Build context REPO ROOT hai (../..) — wahi wajah jo auth-api
+    # ke upar likhi hai.
+    build:
+      context: ../..
+      dockerfile: services/mail-api/Dockerfile
+    container_name: dusrel-mail-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - MAIL_JWT_SECRET=${MAIL_JWT_SECRET}
+      - MAIL_CORS_ORIGIN=${MAIL_CORS_ORIGIN}
+    expose:
+      - "3002"
+
+volumes:
+  # Backup order (docs/23 P0-9, docs/29): data store PEHLE, blob
+  # store (R2) BAAD me, beech me koi purge nahi. Is volume ka
+  # backup Stalwart ke internal DataStore (RocksDB) ka backup hai;
+  # R2 blobs ka backup R2 ki taraf se hai. Restore drill har
+  # 3 mahine me isolated system par (docs/29 ka proposal).
+  stalwart-data:
+  caddy-data:
+  caddy-config:

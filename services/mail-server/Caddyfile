@@ -1,0 +1,23 @@
+# Caddy reverse proxy — sirf HTTP APIs ke liye (v1 slice)
+#
+# Caddy automatic HTTPS (ACME) deta hai API domains ke liye.
+# SMTP/IMAP yahan se proxy NAHI hote — wo Stalwart ke ports
+# (25/465/587/993) par seedha chalte hain.
+#
+# {$DOMAIN} aur {$ACME_EMAIL} .env se aate hain (compose me
+# environment se pass hote hain). Example: DOMAIN=dusrel.com ho
+# to auth-api auth.dusrel.com par aur mail-api
+# mail-api.dusrel.com par chalega (docs/10 ka service-domain rule,
+# final domain abhi bhi example hai — lock nahi hua hai).
+
+{
+	email {$ACME_EMAIL}
+}
+
+auth.{$DOMAIN} {
+	reverse_proxy auth-api:3001
+}
+
+mail-api.{$DOMAIN} {
+	reverse_proxy mail-api:3002
+}
