@@ -1,4 +1,16 @@
-# GitHub Actions — plan only, workflow files abhi nahi banengi
+# GitHub Actions
+
+## CI workflow (bana hua hai)
+
+- `ci.yml` — har push/PR par `main` ke liye: pnpm install
+  (`--frozen-lockfile`), `pnpm -r build` (TypeScript), phir har
+  service ke tests alag step me: auth-api, mail-api. Ye workflow
+  2026-10-31 ko user ke order par bana hai ("har ek test GitHub
+  workflow se verify ho").
+
+## Deploy workflows (abhi bhi plan only, alag approval chahiye)
+
+Plan (detail `docs/09-deployment.md` me):
 
 Plan (detail `docs/09-deployment.md` me):
 
@@ -10,6 +22,6 @@ Plan (detail `docs/09-deployment.md` me):
 - Secrets sirf GitHub Secrets me: CLOUDFLARE_API_TOKEN,
   CLOUDFLARE_ACCOUNT_ID, Render hook, VPS SSH key.
 
-Workflow `.yml` files tabhi banengi jab user us deploy ke liye
-alag se approve karega. Abhi is folder me koi workflow file nahi
-hai, sirf ye plan hai.
+Deploy wali workflow `.yml` files tabhi banengi jab user us deploy
+ke liye alag se approve karega. Is folder me abhi sirf `ci.yml`
+hai, koi deploy workflow nahi hai.
