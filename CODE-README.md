@@ -38,8 +38,8 @@ hain — ye file unko replace nahi karti.
 # pnpm: is sandbox ke Node build me corepack nahi hai, isliye yahan
 # npx se pnpm chalaya gaya hai. Laptop par normal pnpm install /
 # corepack enable wala rasta hi use karo.
-npx -y pnpm@10.19.0 install
-npx -y pnpm@10.19.0 -r build
+npx -y pnpm@12.16.1 install
+npx -y pnpm@12.16.1 -r build
 cd services/auth-api
 # Dev secret ke saath (production me AUTH_JWT_SECRET env se do,
 # kabhi default secret par prod mat chalao):
@@ -52,7 +52,7 @@ Health check: `curl http://localhost:3001/health`.
 Tests (Node test runner, compiled JS par chalte hain):
 
 ```sh
-npx -y pnpm@10.19.0 --filter @dusrel/auth-api test
+npx -y pnpm@12.16.1 --filter @dusrel/auth-api test
 ```
 
 ## Imaandaar limits (v1 slice ki, chhupayi nahi gayi hain)

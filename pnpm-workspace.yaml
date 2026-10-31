@@ -1,3 +1,9 @@
 packages:
   - "services/*"
   - "packages/*"
+
+# pnpm 12 errors on ignored build scripts by default. argon2 is the
+# only dependency that needs its build script (native binding); all
+# other packages use prebuilt binaries or pure JS.
+allowBuilds:
+  argon2: true

@@ -3,6 +3,16 @@ name: CI
 # Har push aur PR par: build + har service ke tests, GitHub Actions
 # par hi verify hote hain. Local "pass" claim kaafi nahi hai — ye
 # workflow hi CI ka sach hai.
+#
+# Versions (31 Oct 2026 ko verify kiye gaye latest):
+# - actions/checkout v7, actions/setup-node v7, pnpm/action-setup v6
+#   (ye sab Node 24 runtime par chalte hain — purane v4 actions
+#   Node 20 target karte the, isliye warning aati thi).
+# - ubuntu-24.04 pinned hai (ubuntu-latest, Ubuntu 26 me migrate ho
+#   raha hai, isliye notice aata tha).
+# - Node 24 LTS (setup-node "24" = latest 24.x, 24.22.2 LTS 28 Oct 2026).
+# - pnpm version root package.json ke packageManager field se match
+#   karta hai.
 on:
   push:
     branches: [main]
@@ -15,20 +25,20 @@ permissions:
 jobs:
   ci:
     name: Build + tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
-          version: 10.19.0
+          version: 12.16.1
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

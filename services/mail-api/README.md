@@ -70,10 +70,10 @@ alias domain aur key-publish ownership check karta hai.
 ## Run / test
 
 ```sh
-npx -y pnpm@10.19.0 install
-npx -y pnpm@10.19.0 -r build
+npx -y pnpm@12.16.1 install
+npx -y pnpm@12.16.1 -r build
 cd services/mail-api
 MAIL_JWT_SECRET=dev-only-change-me node dist/src/index.js
 # health: curl http://localhost:3002/health
-npx -y pnpm@10.19.0 --filter @dusrel/mail-api test
+npx -y pnpm@12.16.1 --filter @dusrel/mail-api test
 ```

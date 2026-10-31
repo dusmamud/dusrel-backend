@@ -37,12 +37,12 @@ hi hai.
 ## Run / test
 
 ```sh
-npx -y pnpm@10.19.0 install
-npx -y pnpm@10.19.0 -r build
+npx -y pnpm@12.16.1 install
+npx -y pnpm@12.16.1 -r build
 cd services/auth-api
 AUTH_JWT_SECRET=dev-only-change-me node dist/src/index.js
 # health: curl http://localhost:3001/health
-npx -y pnpm@10.19.0 --filter @dusrel/auth-api test
+npx -y pnpm@12.16.1 --filter @dusrel/auth-api test
 ```
 
 ## Imaandaar limits (v1)
